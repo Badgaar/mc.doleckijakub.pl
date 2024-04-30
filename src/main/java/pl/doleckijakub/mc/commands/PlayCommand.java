@@ -47,7 +47,7 @@ public class PlayCommand extends PluginCommand {
                         player.sendMessage(ChatColor.GOLD + "Current");
                         for (UUID gameId : minigames.keySet()) {
                             TextComponent message = new TextComponent(ChatColor.GREEN + minigameName + "_" + gameId + ChatColor.RESET + ": " + minigames.get(gameId).getGameStateString());
-                            message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + getCommandInfo().name() + " " + gameId));
+                            message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + getCommandInfo().name() + " " + minigameName + "_" + gameId));
                             player.spigot().sendMessage(message);
                         }
                     }

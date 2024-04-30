@@ -42,7 +42,7 @@ public class TestCommand extends PluginCommand {
                 player.teleport(world.getSpawnLocation());
             }
         } else if (args.length == 0) {
-            player.teleport(Bukkit.getWorld("world").getSpawnLocation());
+            player.teleport(Bukkit.getWorld("lobby").getSpawnLocation());
         } else {
             player.sendMessage(ChatColor.RED + "Wrong usage");
         }

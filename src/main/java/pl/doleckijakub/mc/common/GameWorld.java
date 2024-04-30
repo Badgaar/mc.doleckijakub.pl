@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
-import org.bukkit.util.FileUtil;
 import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.util.FileUtils;
 

@@ -1,10 +1,12 @@
 package pl.doleckijakub.mc;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import pl.doleckijakub.mc.commands.Test;
+import org.reflections.Reflections;
 import pl.doleckijakub.mc.common.GameWorld;
+import pl.doleckijakub.mc.common.PluginCommand;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 
 public final class Plugin extends JavaPlugin {
 
@@ -17,8 +19,19 @@ public final class Plugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        String packageName = getClass().getPackage().getName();
 
-        getCommand("test").setExecutor(new Test());
+        for (Class<? extends PluginCommand> clazz : new Reflections(packageName + ".commands").getSubTypesOf(PluginCommand.class)) {
+            try {
+                PluginCommand pluginCommand = clazz.getDeclaredConstructor().newInstance();
+                String commandName = pluginCommand.getCommandInfo().name();
+
+                getCommand(commandName).setExecutor(pluginCommand);
+                getLogger().info("Registered /" + commandName);
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

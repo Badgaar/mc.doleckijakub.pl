@@ -55,12 +55,10 @@ public class Spleef extends Minigame {
 
     @Override
     public void onPlayerJoin(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined spleef game " + getId());
     }
 
     @Override
     public void onPlayerLeave(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left spleef game " + getId());
     }
 
     @Override

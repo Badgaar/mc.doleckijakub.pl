@@ -6,10 +6,13 @@ import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import pl.doleckijakub.mc.common.Minigame;
+import pl.doleckijakub.mc.util.PlayerUtil;
 
 public class Lobby extends Minigame {
 
@@ -26,17 +29,17 @@ public class Lobby extends Minigame {
 
     @Override
     public void teleportPlayer(Player player) {
-        player.teleport(getWorld().getSpawnLocation());
+        player.teleport(getWorld().getSpawnLocation().add(0.5, 0, 0.5));
     }
 
     @Override
     public void onPlayerJoin(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined lobby " + getId());
+
     }
 
     @Override
     public void onPlayerLeave(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left lobby " + getId());
+
     }
 
     @Override
@@ -46,22 +49,21 @@ public class Lobby extends Minigame {
 
     @Override
     public void onPlayerJoinEvent(PlayerJoinEvent e) {
+        PlayerUtil.resetAdventure(e.getPlayer());
         e.getPlayer().setAllowFlight(true);
     }
 
     @Override
-    public void onPlayerToggleFlightEvent(PlayerToggleFlightEvent e) {
-        Player player = e.getPlayer();
-        if (player.getGameMode().equals(GameMode.ADVENTURE)) {
-            player.setVelocity(player.getLocation().getDirection().multiply(5));
-            e.setCancelled(true);
-        }
+    public void onFoodLevelChangeEvent(FoodLevelChangeEvent e) {
+        e.setCancelled(true);
     }
 
     @Override
-    public void onProjectileHitEvent(ProjectileHitEvent e) {
-        if (e.getEntity().getVelocity().lengthSquared() > 0.1) {
-            e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(-0.9));
+    public void onPlayerMoveEvent(PlayerMoveEvent e) {
+        Player player = e.getPlayer();
+        if (player.getLocation().subtract(0, 64, 0).length() > 50) {
+            player.setFallDistance(0);
+            teleportPlayer(player);
         }
     }
 }

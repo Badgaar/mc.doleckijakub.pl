@@ -663,8 +663,6 @@ public class MinigameEventHandler implements Listener {
 
     @EventHandler
     public void onPlayerTeleportEvent(PlayerTeleportEvent e) {
-        Bukkit.broadcastMessage(ChatColor.YELLOW + "Player " + e.getPlayer().getName() + " teleported from " + e.getFrom() + " to " + e.getTo());
-
         World from = e.getFrom().getWorld();
         World to = e.getTo().getWorld();
 

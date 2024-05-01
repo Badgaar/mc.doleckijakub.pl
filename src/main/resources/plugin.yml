@@ -6,3 +6,5 @@ commands:
     description: For testing purposes only
   play:
     description: Join a minigame
+  lobby:
+    description: Teleport to lobby

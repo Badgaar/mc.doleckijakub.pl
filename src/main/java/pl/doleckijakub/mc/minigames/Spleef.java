@@ -1,7 +1,10 @@
 package pl.doleckijakub.mc.minigames;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
@@ -41,21 +44,31 @@ public class Spleef extends Minigame {
     }
 
     @Override
-    public void onPlayerJoin(Player player) {
+    public void teleportPlayer(Player player) {
         switch (gameState) {
             case LOBBY: {
-                while (this.lobbyWorld == null) {
-                    player.sendMessage("Loading...");
-                }
-
+                while (this.lobbyWorld == null);
                 player.teleport(lobbyWorld.getWorld().getSpawnLocation());
             } break;
         }
     }
 
     @Override
-    public void onPlayerLeave(Player player) {
+    public void onPlayerJoin(Player player) {
+        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined spleef game " + getId());
+    }
 
+    @Override
+    public void onPlayerLeave(Player player) {
+        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left spleef game " + getId());
+    }
+
+    @Override
+    public World getWorld() {
+        switch (gameState) {
+            case LOBBY: return lobbyWorld.getWorld();
+            default: throw new RuntimeException("unimplemented");
+        }
     }
 
 }

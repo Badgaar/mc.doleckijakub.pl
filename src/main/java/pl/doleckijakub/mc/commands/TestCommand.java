@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import pl.doleckijakub.mc.common.CommandInfo;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.PluginCommand;
+import pl.doleckijakub.mc.minigames.Lobby;
 
 @CommandInfo(name = "test", permissions = "op")
 public class TestCommand extends PluginCommand {
@@ -42,7 +43,7 @@ public class TestCommand extends PluginCommand {
                 player.teleport(world.getSpawnLocation());
             }
         } else if (args.length == 0) {
-            player.teleport(Bukkit.getWorld("lobby").getSpawnLocation());
+            player.teleport(Lobby.getInstance().getWorld().getSpawnLocation());
         } else {
             player.sendMessage(ChatColor.RED + "Wrong usage");
         }

@@ -11,7 +11,6 @@ import pl.doleckijakub.mc.common.PluginCommand;
 
 import javax.naming.InvalidNameException;
 import java.util.Map;
-import java.util.UUID;
 
 @CommandInfo(name = "play")
 public class PlayCommand extends PluginCommand {
@@ -33,7 +32,7 @@ public class PlayCommand extends PluginCommand {
                 try {
                     String minigameName = args[0].toLowerCase();
 
-                    Map<UUID, Minigame> minigames = MinigameManager.getCurrentGames(minigameName);
+                    Map<Integer, Minigame> minigames = MinigameManager.getCurrentGames(minigameName);
                     if (minigames.isEmpty()) {
                         TextComponent[] message = new TextComponent[] {
                                 new TextComponent("There are no currently open " + minigameName + " games, but you can start one by issuing "),
@@ -45,9 +44,9 @@ public class PlayCommand extends PluginCommand {
                         player.spigot().sendMessage(message[0], message[1]);
                     } else {
                         player.sendMessage(ChatColor.GOLD + "Current");
-                        for (UUID gameId : minigames.keySet()) {
-                            TextComponent message = new TextComponent(ChatColor.GREEN + minigameName + "_" + gameId + ChatColor.RESET + ": " + minigames.get(gameId).getGameStateString() + ChatColor.RESET + " (" + minigames.get(gameId).getPlayerCount() + " players)");
-                            message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + getCommandInfo().name() + " " + minigameName + " " + gameId));
+                        for (int gameId : minigames.keySet()) {
+                            TextComponent message = new TextComponent(ChatColor.GREEN + minigameName + "_" + String.format("%04d", gameId) + ChatColor.RESET + ": " + minigames.get(gameId).getGameStateString() + ChatColor.RESET + " (" + minigames.get(gameId).getPlayerCount() + " players)");
+                            message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + getCommandInfo().name() + " " + minigameName + " " + String.format("%04d", gameId)));
                             player.spigot().sendMessage(message);
                         }
                     }
@@ -66,16 +65,40 @@ public class PlayCommand extends PluginCommand {
                 try {
                     String minigameName = args[0].toLowerCase();
 
-//                    Map<UUID, Minigame> minigames = MinigameManager.getCurrentGames(minigameName);
+                    Map<Integer, Minigame> minigames = MinigameManager.getCurrentGames(minigameName);
 
                     if (args[1].equalsIgnoreCase("new")) {
                         MinigameManager.playerJoinNewGame(player, minigameName);
                     } else {
-                        throw new RuntimeException("joining games by uuid is not implemented yet");
+                        Minigame minigame = minigames.get(Integer.parseInt(args[1]));
+
+                        if (minigame == null) {
+                            TextComponent[] message = new TextComponent[] {
+                                    new TextComponent(ChatColor.RED + args[1] + " is not a valid minigame id, list valid minigames by running "),
+                                    new TextComponent(ChatColor.AQUA + "/" + getCommandInfo().name()),
+                            };
+
+                            message[1].setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + getCommandInfo().name()));
+
+                            player.spigot().sendMessage(message[0], message[1]);
+
+                            return;
+                        }
+
+                        minigame.teleportPlayer(player);
                     }
                 } catch (InvalidNameException e) {
                     TextComponent[] message = new TextComponent[] {
                             new TextComponent(ChatColor.RED + args[0] + " is not a valid minigame, list valid minigames by running "),
+                            new TextComponent(ChatColor.AQUA + "/" + getCommandInfo().name()),
+                    };
+
+                    message[1].setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + getCommandInfo().name()));
+
+                    player.spigot().sendMessage(message[0], message[1]);
+                } catch (NumberFormatException e) {
+                    TextComponent[] message = new TextComponent[] {
+                            new TextComponent(ChatColor.RED + args[1] + " is not a valid minigame id, list valid minigames by running "),
                             new TextComponent(ChatColor.AQUA + "/" + getCommandInfo().name()),
                     };
 

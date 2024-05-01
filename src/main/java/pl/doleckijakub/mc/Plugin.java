@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.PluginCommand;
+import pl.doleckijakub.mc.managers.MinigameEventHandler;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -11,6 +12,10 @@ import java.lang.reflect.InvocationTargetException;
 public final class Plugin extends JavaPlugin {
 
     private static Plugin instance;
+
+    public static Plugin getInstance() {
+        return instance;
+    }
 
     public static File getWorldsDirectory() {
         return new File(instance.getDataFolder(), "worlds");
@@ -32,6 +37,8 @@ public final class Plugin extends JavaPlugin {
                 throw new RuntimeException(e);
             }
         }
+
+        getServer().getPluginManager().registerEvents(new MinigameEventHandler(), this);
     }
 
     @Override

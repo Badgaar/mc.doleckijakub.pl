@@ -6,6 +6,7 @@ import pl.doleckijakub.mc.exceptions.PlayerNotFoundInAnyMinigameException;
 import pl.doleckijakub.mc.exceptions.WorldNotFoundInAnyMinigameException;
 import pl.doleckijakub.mc.minigames.Lobby;
 import pl.doleckijakub.mc.minigames.Spleef;
+import pl.doleckijakub.mc.minigames.TNTRun;
 
 import javax.naming.InvalidNameException;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +29,7 @@ public final class MinigameManager {
 
     static {
         MINIGAME_NAMES.put("spleef", Spleef.class);
+        MINIGAME_NAMES.put("tntrun", TNTRun.class);
     }
 
     private static Class<? extends Minigame> getMinigameClassByName(String name) throws InvalidNameException {

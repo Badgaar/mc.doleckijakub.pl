@@ -5,7 +5,7 @@ import pl.doleckijakub.mc.common.CommandInfo;
 import pl.doleckijakub.mc.common.PluginCommand;
 
 @CommandInfo(name = "lobby")
-public class PlayCommand extends PluginCommand {
+public class LobbyCommand extends PluginCommand {
 
     @Override
     public void execute(Player player, String[] args) {

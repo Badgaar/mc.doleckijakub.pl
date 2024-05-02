@@ -2,8 +2,6 @@ name: mc.doleckijakub.pl
 version: '${project.version}'
 main: pl.doleckijakub.mc.Plugin
 commands:
-  test:
-    description: For testing purposes only
   play:
     description: Join a minigame
   lobby:

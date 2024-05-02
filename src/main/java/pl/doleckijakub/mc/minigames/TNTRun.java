@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
@@ -67,12 +69,17 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerJoin(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined TNT Run game " + getId());
+
     }
 
     @Override
     public void onPlayerLeave(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left TNT Run game " + getId());
+
+    }
+
+    @Override
+    public void cleanUp() {
+        throw new RuntimeException("todo");
     }
 
     @Override
@@ -101,8 +108,6 @@ public class TNTRun extends Minigame{
         player.sendMessage(spaces + secondsToStart);
     }
 
-    //Start countdown
-    //Weź proszę popraw tego zjebanego syntaxa w 105
     private void startCountdown() {
         Bukkit.getScheduler().runTaskTimer(TNTRun,() -> {
             if (secondsToStart <= 0) {
@@ -115,8 +120,7 @@ public class TNTRun extends Minigame{
         }, 0L, 20L);
     }
 
-    //Block remover
-    @EventHandler
+    @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
         //Get blocks (below player and one under it)
@@ -129,4 +133,11 @@ public class TNTRun extends Minigame{
             blockBelowBlockBelowPlayer.setType(Material.AIR);
         } else super.onPlayerMoveEvent(e);
     }
+
+    @Override
+    public void onPlayerDeathEvent(PlayerDeathEvent e) {
+        e.getEntity().spigot().respawn();
+        // TODO: zostawiam tobie Wojtuś <3
+    }
+  
 }

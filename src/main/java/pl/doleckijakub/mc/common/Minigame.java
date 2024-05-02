@@ -1,6 +1,6 @@
 package pl.doleckijakub.mc.common;
 
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.server.*;
@@ -14,6 +14,8 @@ import org.bukkit.event.hanging.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.*;
+import pl.doleckijakub.mc.minigames.Lobby;
+import pl.doleckijakub.mc.util.ANSI;
 
 
 import java.util.HashSet;
@@ -33,6 +35,10 @@ public abstract class Minigame {
         return id;
     }
 
+	protected final Set<Player> getPlayers() {
+		return players;
+	}
+
     public void addPlayer(Player player) {
         players.add(player);
         onPlayerJoin(player);
@@ -41,6 +47,13 @@ public abstract class Minigame {
     public void removePlayer(Player player) {
         players.remove(player);
         onPlayerLeave(player);
+
+		if (getClass().equals(Lobby.class)) return;
+
+		if (getPlayerCount() == 0) {
+			MinigameManager.stopMinigame(getClass(), getId());
+			cleanUp();
+		}
     }
 
 	public boolean hasPlayer(Player player) {
@@ -51,6 +64,24 @@ public abstract class Minigame {
         return players.size();
     }
 
+	protected void broadcastSound(Location location, Sound sound, float volume, float pitch) {
+		for (Player player : players) {
+			player.playSound(location, sound, volume, pitch);
+		}
+	}
+
+	protected void broadcastSound(Sound sound, float volume, float pitch) {
+		for (Player player : players) {
+			player.playSound(player.getLocation(), sound, volume, pitch);
+		}
+	}
+
+	protected void broadcastMessage(String message) {
+		for (Player player : players) {
+			player.sendMessage(message);
+		}
+	}
+
     // minigame interface
 
     public abstract String getGameStateString();
@@ -58,6 +89,8 @@ public abstract class Minigame {
 	public abstract void teleportPlayer(Player player);
     public abstract void onPlayerJoin(Player player);
     public abstract void onPlayerLeave(Player player);
+
+	public abstract void cleanUp();
 
 	public abstract World getWorld();
 
@@ -155,7 +188,7 @@ public abstract class Minigame {
 	public void onSheepDyeWoolEvent(SheepDyeWoolEvent e) {}
 	public void onProjectileHitEvent(ProjectileHitEvent e) {}
 	public void onItemDespawnEvent(ItemDespawnEvent e) {}
-	public void onPlayerDeathEvent(PlayerDeathEvent e) {}
+	public abstract void onPlayerDeathEvent(PlayerDeathEvent e);
 	public void onPlayerLeashEntityEvent(PlayerLeashEntityEvent e) {}
 	public void onEntityRegainHealthEvent(EntityRegainHealthEvent e) {}
 	public void onExplosionPrimeEvent(ExplosionPrimeEvent e) {}
@@ -187,7 +220,6 @@ public abstract class Minigame {
 	public void onEntityBlockFormEvent(EntityBlockFormEvent e) {}
 	public void onBlockPistonEvent(BlockPistonEvent e) {}
 	public void onBlockIgniteEvent(BlockIgniteEvent e) {}
-	public void onPlayerQuitEvent(PlayerQuitEvent e) {}
 	public void onPlayerToggleFlightEvent(PlayerToggleFlightEvent e) {}
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent e) {}
 	public void onPlayerInteractEvent(PlayerInteractEvent e) {}
@@ -205,7 +237,6 @@ public abstract class Minigame {
 	public void onAsyncPlayerPreLoginEvent(AsyncPlayerPreLoginEvent e) {}
 	public void onPlayerLevelChangeEvent(PlayerLevelChangeEvent e) {}
 	public void onPlayerAchievementAwardedEvent(PlayerAchievementAwardedEvent e) {}
-	public void onPlayerJoinEvent(PlayerJoinEvent e) {}
 	public void onPlayerVelocityEvent(PlayerVelocityEvent e) {}
 	public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent e) {}
 	public void onPlayerBucketEvent(PlayerBucketEvent e) {}

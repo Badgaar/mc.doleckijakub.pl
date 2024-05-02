@@ -4,6 +4,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
@@ -30,7 +31,8 @@ public class Lobby extends Minigame {
 
     @Override
     public void onPlayerJoin(Player player) {
-
+        PlayerUtil.resetAdventure(player);
+        player.setAllowFlight(true);
     }
 
     @Override
@@ -39,14 +41,13 @@ public class Lobby extends Minigame {
     }
 
     @Override
-    public World getWorld() {
-        return Bukkit.getWorld("lobby");
+    public void cleanUp() {
+        throw new IllegalStateException();
     }
 
     @Override
-    public void onPlayerJoinEvent(PlayerJoinEvent e) {
-        PlayerUtil.resetAdventure(e.getPlayer());
-        e.getPlayer().setAllowFlight(true);
+    public World getWorld() {
+        return Bukkit.getWorld("lobby");
     }
 
     @Override
@@ -84,11 +85,12 @@ public class Lobby extends Minigame {
     }
 
     @Override
-    public void onPlayerInteractEvent(PlayerInteractEvent e) {
-        Bukkit.broadcastMessage(e.getPlayer().toString());
-        if(e.getAction() == Action.PHYSICAL && e.getClickedBlock().getType() == Material.GOLD_PLATE) {
-            Bukkit.broadcastMessage(e.getPlayer().toString());
-            e.getPlayer().eject();
-        }
+    public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent e) {
+        e.setCancelled(true);
+    }
+
+    @Override
+    public void onBlockFadeEvent(BlockFadeEvent e) {
+        e.setCancelled(true);
     }
 }

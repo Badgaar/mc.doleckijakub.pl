@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
@@ -28,7 +30,7 @@ public class TNTRun extends Minigame{
             switch (this) {
                 case LOBBY:
                     return ChatColor.GREEN + "Lobby";
-                case RUNNING:e
+                case RUNNING:
                     return ChatColor.GOLD + "Running";
                 case FINISHED:
                     return ChatColor.RED + "Finished";
@@ -67,12 +69,17 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerJoin(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined TNT Run game " + getId());
+
     }
 
     @Override
     public void onPlayerLeave(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left TNT Run game " + getId());
+
+    }
+
+    @Override
+    public void cleanUp() {
+        throw new RuntimeException("todo");
     }
 
     @Override
@@ -101,10 +108,8 @@ public class TNTRun extends Minigame{
         player.sendMessage(spaces + secondsToStart);
     }
 
-    //Start countdown
-    //Weź proszę popraw tego zjebanego syntaxa w 105
     private void startCountdown() {
-        Bukkit.getScheduler().runTaskTimer(TNTRun,() -> {
+        Bukkit.getScheduler().runTaskTimer(Plugin.getInstance() ,() -> {
             if (secondsToStart <= 0) {
                 return;
             }
@@ -115,18 +120,23 @@ public class TNTRun extends Minigame{
         }, 0L, 20L);
     }
 
-    //Block remover
     @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        //Get blocks (below player and one under it)
-        Block blockBelowPlayer = Player.getLocation().substract(0, 1, 0).getblock();
-        Block blockBelowBlockBelowPlayer = Player.getLocation().substract(0, 2, 0).getblock();
 
-        //If player is on the ground remove 2 block underneath his feet
+        Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
+        Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
+
         if (blockBelowPlayer.getType() != Material.AIR && secondsToStart != 0) {
             blockBelowPlayer.setType(Material.AIR);
             blockBelowBlockBelowPlayer.setType(Material.AIR);
         } else super.onPlayerMoveEvent(e);
     }
+
+    @Override
+    public void onPlayerDeathEvent(PlayerDeathEvent e) {
+        e.getEntity().spigot().respawn();
+        // TODO: zostawiam tobie Wojtuś <3
+    }
+  
 }

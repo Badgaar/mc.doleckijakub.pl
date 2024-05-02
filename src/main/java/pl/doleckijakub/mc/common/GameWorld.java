@@ -1,10 +1,12 @@
 package pl.doleckijakub.mc.common;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import pl.doleckijakub.mc.Plugin;
+import pl.doleckijakub.mc.util.ANSI;
 import pl.doleckijakub.mc.util.FileUtils;
 
 import java.io.File;
@@ -17,10 +19,14 @@ public class GameWorld {
     private final static Set<GameWorld> INSTANCES = new HashSet<>();
     private final static File WORLDS_DIRECTORY = Plugin.getWorldsDirectory();
 
+    private final String worldName;
+
     private final File directory;
     private final World world;
 
     public GameWorld(String worldName) {
+        this.worldName = worldName;
+
         if (!WORLDS_DIRECTORY.exists()) WORLDS_DIRECTORY.mkdirs();
 
         File source = new File(
@@ -55,13 +61,17 @@ public class GameWorld {
     }
 
     public void unload() {
-        Bukkit.getLogger().info("Unloading " + directory.getName());
+        Bukkit.getLogger().info(ANSI.BLUE + "Unloading " + directory.getName() + ANSI.RESET);
 
         for (Player player : world.getPlayers()) player.kickPlayer("Unloading world");
         Bukkit.unloadWorld(world, false);
         FileUtils.delete(directory);
 
         INSTANCES.remove(this);
+    }
+
+    public String getWorldName() {
+        return worldName;
     }
 
     public World getWorld() {

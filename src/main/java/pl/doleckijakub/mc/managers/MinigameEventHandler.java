@@ -13,6 +13,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.weather.*;
 import pl.doleckijakub.mc.common.MinigameManager;
 import pl.doleckijakub.mc.minigames.Lobby;
+import pl.doleckijakub.mc.util.ANSI;
 
 public class MinigameEventHandler implements Listener {
 
@@ -643,7 +644,7 @@ public class MinigameEventHandler implements Listener {
 
     @EventHandler
     public void onPlayerQuitEvent(PlayerQuitEvent e) {
-        MinigameManager.getMinigameByPlayer(e.getPlayer()).onPlayerQuitEvent(e);
+        MinigameManager.getMinigameByPlayer(e.getPlayer()).removePlayer(e.getPlayer());
     }
 
     @EventHandler
@@ -663,13 +664,31 @@ public class MinigameEventHandler implements Listener {
 
     @EventHandler
     public void onPlayerTeleportEvent(PlayerTeleportEvent e) {
-        World from = e.getFrom().getWorld();
-        World to = e.getTo().getWorld();
+        switch (e.getCause()) {
+            case SPECTATE:
+            case ENDER_PEARL:
+            case PLUGIN: {
 
-        if (from.equals(to)) return;
-
-        MinigameManager.getMinigameByWorld(from).removePlayer(e.getPlayer());
-        MinigameManager.getMinigameByWorld(to).addPlayer(e.getPlayer());
+            } break;
+            case NETHER_PORTAL:
+            case END_PORTAL:
+            case COMMAND: {
+                e.getPlayer().sendMessage(ChatColor.RED + "Teleporting using " + e.getCause().toString() + " is disabled for now. Sorry.");
+                e.setCancelled(true);
+            } break;
+            case UNKNOWN: {
+                Bukkit.getLogger().info(ANSI.RED + "Player " + e.getPlayer() + " teleported by cause: UNKNOWN" + ANSI.RESET);
+            } break;
+        }
+//        Bukkit.getLogger().info(ANSI.PURPLE + "onPlayerTeleportEvent " + e + ANSI.RESET);
+//
+//        World from = e.getFrom().getWorld();
+//        World to = e.getTo().getWorld();
+//
+//        if (from.equals(to)) return;
+//
+//        MinigameManager.getMinigameByWorld(from).removePlayer(e.getPlayer());
+//        MinigameManager.getMinigameByWorld(to).addPlayer(e.getPlayer());
     }
 
     @EventHandler
@@ -719,7 +738,7 @@ public class MinigameEventHandler implements Listener {
 
     @EventHandler
     public void onPlayerBedLeaveEvent(PlayerBedLeaveEvent e) {
-        MinigameManager.getMinigameByPlayer(e.getPlayer()).onPlayerBedLeaveEvent(e);
+        MinigameManager.onPlayerLeaveServer(e.getPlayer());
     }
 
 //    @EventHandler
@@ -739,8 +758,7 @@ public class MinigameEventHandler implements Listener {
 
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent e) {
-        Lobby.getInstance().teleportPlayer(e.getPlayer());
-        MinigameManager.getMinigameByPlayer(e.getPlayer()).onPlayerJoinEvent(e);
+        MinigameManager.playerJoinLobby(e.getPlayer());
     }
 
 //    @EventHandler

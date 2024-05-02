@@ -1,5 +1,7 @@
 package pl.doleckijakub.mc.common;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import pl.doleckijakub.mc.exceptions.PlayerNotFoundInAnyMinigameException;
@@ -7,9 +9,12 @@ import pl.doleckijakub.mc.exceptions.WorldNotFoundInAnyMinigameException;
 import pl.doleckijakub.mc.minigames.Lobby;
 import pl.doleckijakub.mc.minigames.Spleef;
 import pl.doleckijakub.mc.minigames.TNTRun;
+import pl.doleckijakub.mc.util.ANSI;
 
 import javax.naming.InvalidNameException;
+import javax.persistence.Lob;
 import java.lang.reflect.InvocationTargetException;
+import java.security.InvalidKeyException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,6 +35,10 @@ public final class MinigameManager {
     static {
         MINIGAME_NAMES.put("spleef", Spleef.class);
         MINIGAME_NAMES.put("tntrun", TNTRun.class);
+    }
+
+    private static String getMinigameName(Class<? extends Minigame> minigameClass) {
+        return MINIGAME_NAMES.entrySet().stream().filter(entry -> entry.getValue().equals(minigameClass)).map(Map.Entry::getKey).findFirst().get();
     }
 
     private static Class<? extends Minigame> getMinigameClassByName(String name) throws InvalidNameException {
@@ -57,6 +66,16 @@ public final class MinigameManager {
         }
     }
 
+    public static void onPlayerLeaveServer(Player player) {
+        getMinigameByPlayer(player).removePlayer(player);
+    }
+
+    public static void playerSetMinigame(Player player, Minigame minigame) {
+        getMinigameByPlayer(player).removePlayer(player);
+        minigame.teleportPlayer(player);
+        minigame.addPlayer(player);
+    }
+
     public static void playerJoinNewGame(Player player, String name) throws InvalidNameException {
         Class<? extends Minigame> minigameClass = getMinigameClassByName(name);
         Minigame minigame = createMinigame(minigameClass);
@@ -64,7 +83,23 @@ public final class MinigameManager {
         if (!CURRENT_GAMES.containsKey(minigameClass)) CURRENT_GAMES.put(minigameClass, new HashMap<>());
         CURRENT_GAMES.get(minigameClass).put(minigame.getId(), minigame);
 
-        minigame.teleportPlayer(player);
+        playerSetMinigame(player, minigame);
+    }
+
+    public static void playerJoinGame(Player player, String name, int id) throws InvalidNameException, InvalidKeyException {
+        Class<? extends Minigame> minigameClass = getMinigameClassByName(name);
+
+        try {
+            Minigame minigame = CURRENT_GAMES.get(minigameClass).get(id);
+
+            playerSetMinigame(player, minigame);
+        } catch (NullPointerException e) {
+            throw new InvalidKeyException();
+        }
+    }
+
+    public static void playerJoinLobby(Player player) {
+        playerSetMinigame(player, Lobby.getInstance());
     }
 
     public static Minigame getMinigameByWorld(World world) {
@@ -92,11 +127,12 @@ public final class MinigameManager {
             }
         }
 
-//        if (Lobby.getInstance().hasPlayer(player)) return Lobby.getInstance();
-//
-//        throw new PlayerNotFoundInAnyMinigameException(player);
-
         return Lobby.getInstance();
+    }
+
+    public static void stopMinigame(Class<? extends Minigame> minigameClass, int id) {
+        Bukkit.getLogger().info(ANSI.BLUE + "Stopping minigame " + getMinigameName(minigameClass) + "_" + String.format("%04d", id) + ANSI.RESET);
+        CURRENT_GAMES.get(minigameClass).remove(id);
     }
 
 }

@@ -1,13 +1,17 @@
 package pl.doleckijakub.mc;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.PluginCommand;
 import pl.doleckijakub.mc.managers.MinigameEventHandler;
+import pl.doleckijakub.mc.util.ANSI;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 public final class Plugin extends JavaPlugin {
 
@@ -32,7 +36,7 @@ public final class Plugin extends JavaPlugin {
                 String commandName = pluginCommand.getCommandInfo().name();
 
                 getCommand(commandName).setExecutor(pluginCommand);
-                getLogger().info("Registered /" + commandName);
+                getLogger().info(ANSI.GREEN + "Registered /" + commandName + ANSI.RESET);
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }

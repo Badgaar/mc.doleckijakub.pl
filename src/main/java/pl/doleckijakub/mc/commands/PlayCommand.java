@@ -10,6 +10,7 @@ import pl.doleckijakub.mc.common.MinigameManager;
 import pl.doleckijakub.mc.common.PluginCommand;
 
 import javax.naming.InvalidNameException;
+import java.security.InvalidKeyException;
 import java.util.Map;
 
 @CommandInfo(name = "play")
@@ -70,9 +71,9 @@ public class PlayCommand extends PluginCommand {
                     if (args[1].equalsIgnoreCase("new")) {
                         MinigameManager.playerJoinNewGame(player, minigameName);
                     } else {
-                        Minigame minigame = minigames.get(Integer.parseInt(args[1]));
-
-                        if (minigame == null) {
+                        try {
+                            MinigameManager.playerJoinGame(player, minigameName, Integer.parseInt(args[1]));
+                        } catch (InvalidKeyException e) {
                             TextComponent[] message = new TextComponent[] {
                                     new TextComponent(ChatColor.RED + args[1] + " is not a valid minigame id, list valid minigames by running "),
                                     new TextComponent(ChatColor.AQUA + "/" + getCommandInfo().name()),
@@ -84,8 +85,6 @@ public class PlayCommand extends PluginCommand {
 
                             return;
                         }
-
-                        minigame.teleportPlayer(player);
                     }
                 } catch (InvalidNameException e) {
                     TextComponent[] message = new TextComponent[] {

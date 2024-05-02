@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
@@ -55,12 +56,17 @@ public class TNTRun extends Minigame {
 
     @Override
     public void onPlayerJoin(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined TNT Run game " + getId());
+
     }
 
     @Override
     public void onPlayerLeave(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left TNT Run game " + getId());
+
+    }
+
+    @Override
+    public void cleanUp() {
+        throw new RuntimeException("todo");
     }
 
     @Override
@@ -71,4 +77,9 @@ public class TNTRun extends Minigame {
         }
     }
 
+    @Override
+    public void onPlayerDeathEvent(PlayerDeathEvent e) {
+        e.getEntity().spigot().respawn();
+        // TODO: zostawiam tobie Wojtuś <3
+    }
 }

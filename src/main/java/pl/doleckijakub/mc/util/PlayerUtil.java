@@ -23,7 +23,6 @@ public final class PlayerUtil {
         player.setCustomNameVisible(false);
 
         player.setBedSpawnLocation(null);
-        player.setResourcePack(null);
 
         player.setVelocity(player.getVelocity().zero());
         player.setDisplayName(player.getName());
@@ -44,4 +43,8 @@ public final class PlayerUtil {
         player.setGameMode(GameMode.SURVIVAL);
     }
 
+    public static void resetSpectator(Player player) {
+        reset(player);
+        player.setGameMode(GameMode.SPECTATOR);
+    }
 }

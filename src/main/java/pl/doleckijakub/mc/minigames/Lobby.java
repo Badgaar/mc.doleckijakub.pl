@@ -30,7 +30,8 @@ public class Lobby extends Minigame {
 
     @Override
     public void onPlayerJoin(Player player) {
-
+        PlayerUtil.resetAdventure(player);
+        player.setAllowFlight(true);
     }
 
     @Override
@@ -39,14 +40,13 @@ public class Lobby extends Minigame {
     }
 
     @Override
-    public World getWorld() {
-        return Bukkit.getWorld("lobby");
+    public void cleanUp() {
+        throw new IllegalStateException();
     }
 
     @Override
-    public void onPlayerJoinEvent(PlayerJoinEvent e) {
-        PlayerUtil.resetAdventure(e.getPlayer());
-        e.getPlayer().setAllowFlight(true);
+    public World getWorld() {
+        return Bukkit.getWorld("lobby");
     }
 
     @Override
@@ -83,12 +83,4 @@ public class Lobby extends Minigame {
         }
     }
 
-    @Override
-    public void onPlayerInteractEvent(PlayerInteractEvent e) {
-        Bukkit.broadcastMessage(e.getPlayer().toString());
-        if(e.getAction() == Action.PHYSICAL && e.getClickedBlock().getType() == Material.GOLD_PLATE) {
-            Bukkit.broadcastMessage(e.getPlayer().toString());
-            e.getPlayer().eject();
-        }
-    }
 }

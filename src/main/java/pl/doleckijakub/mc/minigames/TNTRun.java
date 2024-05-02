@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
@@ -109,7 +109,7 @@ public class TNTRun extends Minigame{
     }
 
     private void startCountdown() {
-        Bukkit.getScheduler().runTaskTimer(TNTRun,() -> {
+        Bukkit.getScheduler().runTaskTimer(Plugin.getInstance() ,() -> {
             if (secondsToStart <= 0) {
                 return;
             }
@@ -123,11 +123,10 @@ public class TNTRun extends Minigame{
     @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        //Get blocks (below player and one under it)
-        Block blockBelowPlayer = Player.getLocation().substract(0, 1, 0).getblock();
-        Block blockBelowBlockBelowPlayer = Player.getLocation().substract(0, 2, 0).getblock();
 
-        //If player is on the ground remove 2 block underneath his feet
+        Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
+        Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
+
         if (blockBelowPlayer.getType() != Material.AIR && secondsToStart != 0) {
             blockBelowPlayer.setType(Material.AIR);
             blockBelowBlockBelowPlayer.setType(Material.AIR);

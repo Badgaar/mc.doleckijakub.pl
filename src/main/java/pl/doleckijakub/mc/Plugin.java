@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
+import pl.doleckijakub.mc.commands.LobbyCommand;
+import pl.doleckijakub.mc.commands.PlayCommand;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.PluginCommand;
 import pl.doleckijakub.mc.managers.MinigameEventHandler;
@@ -30,17 +32,20 @@ public final class Plugin extends JavaPlugin {
         instance = this;
         String packageName = getClass().getPackage().getName();
 
-        for (Class<? extends PluginCommand> clazz : new Reflections(packageName + ".commands").getSubTypesOf(PluginCommand.class)) {
-            try {
-                PluginCommand pluginCommand = clazz.getDeclaredConstructor().newInstance();
-                String commandName = pluginCommand.getCommandInfo().name();
+//        for (Class<? extends PluginCommand> clazz : new Reflections(packageName + ".commands").getSubTypesOf(PluginCommand.class)) {
+//            try {
+//                PluginCommand pluginCommand = clazz.getDeclaredConstructor().newInstance();
+//                String commandName = pluginCommand.getCommandInfo().name();
+//
+//                getCommand(commandName).setExecutor(pluginCommand);
+//                getLogger().info(ANSI.GREEN + "Registered /" + commandName + ANSI.RESET);
+//            } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
 
-                getCommand(commandName).setExecutor(pluginCommand);
-                getLogger().info(ANSI.GREEN + "Registered /" + commandName + ANSI.RESET);
-            } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        getCommand("play").setExecutor(new PlayCommand());
+        getCommand("lobby").setExecutor(new LobbyCommand());
 
         getServer().getPluginManager().registerEvents(new MinigameEventHandler(), this);
     }

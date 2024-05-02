@@ -4,7 +4,9 @@ import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
@@ -268,4 +270,17 @@ public class Spleef extends Minigame {
         e.getEntity().teleport(getRandomGameWorldSpawnLocation());
         checkWin();
     }
+
+    @Override
+    public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent e) {
+        if (gameState != GameState.RUNNING) {
+            e.setCancelled(true);
+        }
+    }
+
+    @Override
+    public void onProjectileHitEvent(ProjectileHitEvent e) {
+//        e.getEntity()
+    }
+
 }

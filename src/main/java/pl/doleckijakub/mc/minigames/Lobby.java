@@ -4,6 +4,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
@@ -83,4 +84,13 @@ public class Lobby extends Minigame {
         }
     }
 
+    @Override
+    public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent e) {
+        e.setCancelled(true);
+    }
+
+    @Override
+    public void onBlockFadeEvent(BlockFadeEvent e) {
+        e.setCancelled(true);
+    }
 }

@@ -4,10 +4,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import pl.doleckijakub.mc.common.Minigame;
@@ -70,6 +67,11 @@ public class Lobby extends Minigame {
     @Override
     public void onEntityExplodeEvent(EntityExplodeEvent e) {
         e.setCancelled(true);
+    }
+
+    @Override
+    public void onPlayerDeathEvent(PlayerDeathEvent e) {
+        e.getEntity().spigot().respawn();
     }
 
     @Override

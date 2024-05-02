@@ -10,12 +10,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
+import org.junit.Test;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class TNTRun extends Minigame{
+public class KingOfTheSheep extends Minigame {
 
 
     public enum GameState {
@@ -28,7 +29,7 @@ public class TNTRun extends Minigame{
             switch (this) {
                 case LOBBY:
                     return ChatColor.GREEN + "Lobby";
-                case RUNNING:e
+                case RUNNING:
                     return ChatColor.GOLD + "Running";
                 case FINISHED:
                     return ChatColor.RED + "Finished";
@@ -43,10 +44,10 @@ public class TNTRun extends Minigame{
     private GameWorld lobbyWorld;
     private GameWorld gameWorld;
 
-    public TNTRun() {
+    public KingOfTheSheep() {
         super();
         this.gameState = GameState.LOBBY;
-        this.lobbyWorld = new GameWorld("tnt_run_lobby");
+        this.lobbyWorld = new GameWorld("king_of_the_sheep_lobby");
     }
 
     @Override
@@ -67,12 +68,12 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerJoin(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined TNT Run game " + getId());
+        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " joined King Of The Sheep game " + getId());
     }
 
     @Override
     public void onPlayerLeave(Player player) {
-        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left TNT Run game " + getId());
+        Bukkit.broadcastMessage(ChatColor.DARK_PURPLE + "Player " + player.getName() + " left King Of The Sheep game " + getId());
     }
 
     @Override
@@ -87,10 +88,10 @@ public class TNTRun extends Minigame{
 
     //1s=20tic
     public int secondsToStart = 10;
-    String stringedSecondsToStart = ""+secondsToStart;
+    String stringedSecondsToStart = "" + secondsToStart;
 
     //Centered countdown
-    public void sendTimerMessage(Player player,int secondsToStart) {
+    public void sendTimerMessage(Player player, int secondsToStart) {
         int messageLength = stringedSecondsToStart.length();
         int centerMessage = 154 / 2;
         int messageStart = centerMessage - (messageLength / 2);
@@ -102,9 +103,8 @@ public class TNTRun extends Minigame{
     }
 
     //Start countdown
-    //Weź proszę popraw tego zjebanego syntaxa w 105
     private void startCountdown() {
-        Bukkit.getScheduler().runTaskTimer(TNTRun,() -> {
+        Bukkit.getScheduler().runTaskTimer(KingOfTheSheep, () -> {
             if (secondsToStart <= 0) {
                 return;
             }
@@ -115,18 +115,44 @@ public class TNTRun extends Minigame{
         }, 0L, 20L);
     }
 
-    //Block remover
-    @Override
-    public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        Player player = e.getPlayer();
-        //Get blocks (below player and one under it)
-        Block blockBelowPlayer = Player.getLocation().substract(0, 1, 0).getblock();
-        Block blockBelowBlockBelowPlayer = Player.getLocation().substract(0, 2, 0).getblock();
-
-        //If player is on the ground remove 2 block underneath his feet
-        if (blockBelowPlayer.getType() != Material.AIR && secondsToStart != 0) {
-            blockBelowPlayer.setType(Material.AIR);
-            blockBelowBlockBelowPlayer.setType(Material.AIR);
-        } else super.onPlayerMoveEvent(e);
+    //Create 4 teams blu,RED (SPY IN THE BASE) ,grin(ch),yeloł
+    public enum Team{,
+        BLUE,
+        RED,
+        GREEN,
+        YELLOW;
     }
+
+    public int[] teamPlayerCount = new int[Team.values().length]
+
+    //Assign players (3perTeam)
+    public void onPlayerJoin(Player player){
+        player.Team != null;
+        if(getPlayerTeam(player) == Team.NONE) {
+            assignToTeam(player);
+        }
+
+    }
+    public void assignToTeam(){
+        for (Team team : Team.values()){
+            if (team == Team.NONE){
+                continue;
+            }
+
+            if (teamPlayerCount[team.ordinal()] == 0){
+                setPlayerTeam(player, team);
+            }
+        }
+    }
+
+    public void setPlayerTeam(Player player, Team team){
+        if ()
+    }
+    //Set team spawn (If team owns Sheep make them spawn on top of the mountain 10 sec delay)
+    //Create sheep object C: White
+    //Set sheep to a static place on map
+    //Give kits to players
+    //Later to add: villager shops, way to obtain barter items,
+    //Sheep timer 2 minutes = win
+
 }

@@ -1,35 +1,35 @@
 package pl.doleckijakub.mc.minigames;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
+import pl.doleckijakub.mc.util.PlayerUtil;
 
-import static org.bukkit.Bukkit.getServer;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class TNTRun extends Minigame{
 
+    private static final int MIN_PLAYERS = 2;
+    private static final int COUNTDOWN_LENGTH = 10;
 
     public enum GameState {
-        LOBBY,
+        WAITING,
         RUNNING,
         FINISHED;
+
 
         @Override
         public String toString() {
             switch (this) {
-                case LOBBY:
-                    return ChatColor.GREEN + "Lobby";
+                case WAITING:
+                    return ChatColor.GREEN + "Waiting";
                 case RUNNING:
                     return ChatColor.GOLD + "Running";
                 case FINISHED:
@@ -38,17 +38,17 @@ public class TNTRun extends Minigame{
 
             return null;
         }
+
     }
-
     private GameState gameState;
-
-    private GameWorld lobbyWorld;
+    private Player winner;
     private GameWorld gameWorld;
+
 
     public TNTRun() {
         super();
-        this.gameState = GameState.LOBBY;
-        this.lobbyWorld = new GameWorld("tnt_run_lobby");
+        this.gameState = GameState.WAITING;
+        this.gameWorld = new GameWorld("tntrun_map_0");
     }
 
     @Override
@@ -58,18 +58,33 @@ public class TNTRun extends Minigame{
 
     @Override
     public void teleportPlayer(Player player) {
-        switch (gameState) {
-            case LOBBY: {
-                while (this.lobbyWorld == null) ;
-                player.teleport(lobbyWorld.getWorld().getSpawnLocation());
+        player.teleport(gameWorld.getWorld().getSpawnLocation());
+    }
+
+    private void setGameState(GameState newgamestate){
+        gameState.RUNNING;
+
+        switch (newgamestate){
+            case WAITING: throw new IllegalStateException();
+            case RUNNING: {
+                for (Player player : gameWorld.getWorld().getPlayers()) {
+                    broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
+
+                    break;
+                }
             }
-            break;
+            case FINISHED: {
+                broadcastSound(Sound.GHAST_MOAN, 1, 2);
+
+            }
         }
     }
 
     @Override
     public void onPlayerJoin(Player player) {
-
+        if(getPlayerCount()==MIN_PLAYERS){
+        setGameState();
+        }
     }
 
     @Override
@@ -79,45 +94,43 @@ public class TNTRun extends Minigame{
 
     @Override
     public void cleanUp() {
-        throw new RuntimeException("todo");
+        gameWorld.unload();
     }
 
     @Override
     public World getWorld() {
-        switch (gameState) {
-            case LOBBY:
-                return lobbyWorld.getWorld();
-            default:
-                throw new RuntimeException("unimplemented");
+        return gameWorld.getWorld();
+    }
+
+    private void checkWin() {
+        Set<Player> alive = getPlayers().stream().filter(player -> player.getGameMode() == GameMode.SURVIVAL).collect(Collectors.toSet());
+        long aliveLeft = alive.size();
+
+        if (aliveLeft == 1) {
+            winner = alive.stream().findFirst().get();
+            setGameState(Spleef.GameState.FINISHED);
+        } else {
+            broadcastMessage(ChatColor.GOLD + "Only " + aliveLeft + " players remaining");
         }
     }
 
-    //1s=20tic
-    public int secondsToStart = 10;
-    String stringedSecondsToStart = ""+secondsToStart;
+    private Location getRandomGameWorldSpawnLocation() {
+        String worldName = gameWorld.getWorldName();
 
-    //Centered countdown
-    public void sendTimerMessage(Player player,int secondsToStart) {
-        int messageLength = stringedSecondsToStart.length();
-        int centerMessage = 154 / 2;
-        int messageStart = centerMessage - (messageLength / 2);
-        String spaces = "";
-        for (int i = 0; i < messageStart; i++) {
-            spaces += " ";
+        switch (worldName) {
+            case "tntrun_map_0": {
+                double r = ThreadLocalRandom.current().nextDouble(20, 40);
+                double theta = ThreadLocalRandom.current().nextDouble(Math.PI * 2);
+
+                double x = Math.cos(theta) * r;
+                double y = 76;
+                double z = Math.sin(theta) * r;
+
+                return new Location(gameWorld.getWorld(), x, y, z);
+            }
         }
-        player.sendMessage(spaces + secondsToStart);
-    }
 
-    private void startCountdown() {
-        Bukkit.getScheduler().runTaskTimer(Plugin.getInstance() ,() -> {
-            if (secondsToStart <= 0) {
-                return;
-            }
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                sendTimerMessage(player, secondsToStart);
-            }
-            secondsToStart--;
-        }, 0L, 20L);
+        throw new IllegalStateException("getRandomGameWorldSpawnLocation() unimplemented for " + worldName);
     }
 
     @Override
@@ -127,7 +140,7 @@ public class TNTRun extends Minigame{
         Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
         Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
 
-        if (blockBelowPlayer.getType() != Material.AIR && secondsToStart != 0) {
+        if (blockBelowPlayer.getType() != Material.AIR && gameState == GameState.RUNNING) {
             blockBelowPlayer.setType(Material.AIR);
             blockBelowBlockBelowPlayer.setType(Material.AIR);
         } else super.onPlayerMoveEvent(e);
@@ -136,7 +149,9 @@ public class TNTRun extends Minigame{
     @Override
     public void onPlayerDeathEvent(PlayerDeathEvent e) {
         e.getEntity().spigot().respawn();
-        // TODO: zostawiam tobie Wojtuś <3
+        PlayerUtil.resetSpectator(e.getEntity());
+        e.getEntity().teleport(getRandomGameWorldSpawnLocation());
+        checkWin();
     }
   
 }

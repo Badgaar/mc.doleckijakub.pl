@@ -12,15 +12,11 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.scheduler.BukkitTask;
-import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
-import pl.doleckijakub.mc.common.MinigameManager;
+import pl.doleckijakub.mc.util.Countdown;
 import pl.doleckijakub.mc.util.PlayerUtil;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -52,8 +48,7 @@ public class Spleef extends Minigame {
     private final GameWorld lobbyWorld;
     private final GameWorld gameWorld;
 
-    private int countdown;
-    private BukkitTask timer;
+    private Countdown countdown;
 
     private Player winner;
 
@@ -127,9 +122,11 @@ public class Spleef extends Minigame {
                 if (newGameState == GameState.FINISHED) {
                     broadcastMessage(ChatColor.GREEN + "Player " + winner.getName() + " won the game");
 
-                    countdown = 40;
-                    timer = Bukkit.getScheduler().runTaskTimer(Plugin.getInstance(), () -> {
-                        Firework firework = (Firework) getWorld().spawnEntity(winner.getLocation(), EntityType.FIREWORK);
+                    countdown = new Countdown(40, 5) {
+
+                        @Override
+                        public void tick(int ticksLeft) {
+                            Firework firework = (Firework) getWorld().spawnEntity(winner.getLocation(), EntityType.FIREWORK);
                             FireworkMeta fireworkMeta = firework.getFireworkMeta();
                             fireworkMeta.setPower(2);
                             fireworkMeta.addEffect(FireworkEffect.builder().withColor(Color.fromRGB(
@@ -137,12 +134,15 @@ public class Spleef extends Minigame {
                                     ThreadLocalRandom.current().nextInt(255),
                                     ThreadLocalRandom.current().nextInt(255)
                             )).flicker(true).build());
-
-                        if (countdown-- == 0) {
-                            teleportAllPlayersToLobby();
-                            timer.cancel();
+                            firework.setFireworkMeta(fireworkMeta);
                         }
-                    }, 20, 5);
+
+                        @Override
+                        public void onFinished() {
+                            teleportAllPlayersToLobby();
+                        }
+
+                    };
                 } else {
                     throw new IllegalStateException("unreachable");
                 }
@@ -186,16 +186,20 @@ public class Spleef extends Minigame {
             case LOBBY: {
                 PlayerUtil.resetAdventure(player);
                 if (getPlayerCount() == MIN_PLAYERS) {
-                    countdown = COUNTDOWN_LENGTH;
-                    timer = Bukkit.getScheduler().runTaskTimer(Plugin.getInstance(), () -> {
-                        broadcastSound(Sound.CLICK, 1, 1);
-                        broadcastMessage((countdown > 5 ? ChatColor.GOLD : ChatColor.RED) + "Starting in " + countdown);
+                    countdown = new Countdown(COUNTDOWN_LENGTH, 20) {
 
-                        if (countdown-- == 0) {
-                            setGameState(GameState.RUNNING);
-                            timer.cancel();
+                        @Override
+                        public void tick(int ticksLeft) {
+                            broadcastSound(Sound.CLICK, 1, 1);
+                            broadcastMessage((ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED) + "Starting in " + countdown);
                         }
-                    }, 20, 20);
+
+                        @Override
+                        public void onFinished() {
+                            setGameState(GameState.RUNNING);
+                        }
+
+                    };
                 }
             } break;
             case RUNNING: {
@@ -211,9 +215,9 @@ public class Spleef extends Minigame {
     public void onPlayerLeave(Player player) {
         switch (gameState) {
             case LOBBY: {
-                if (timer != null && getPlayerCount() == MIN_PLAYERS - 1) {
-                    timer.cancel();
-                    timer = null;
+                if (countdown != null && getPlayerCount() == MIN_PLAYERS - 1) {
+                    countdown.cancel();
+                    countdown = null;
                 }
             } break;
             case RUNNING: {

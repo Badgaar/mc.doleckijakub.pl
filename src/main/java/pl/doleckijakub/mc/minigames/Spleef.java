@@ -191,7 +191,7 @@ public class Spleef extends Minigame {
                         @Override
                         public void tick(int ticksLeft) {
                             broadcastSound(Sound.CLICK, 1, 1);
-                            broadcastMessage((ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED) + "Starting in " + countdown);
+                            broadcastMessage((ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED) + "Starting in " + ticksLeft);
                         }
 
                         @Override
@@ -202,9 +202,7 @@ public class Spleef extends Minigame {
                     };
                 }
             } break;
-            case RUNNING: {
-                PlayerUtil.resetSpectator(player);
-            } break;
+            case RUNNING:
             case FINISHED: {
                 PlayerUtil.resetSpectator(player);
             } break;

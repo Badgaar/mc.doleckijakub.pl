@@ -8,6 +8,7 @@ import pl.doleckijakub.mc.common.CommandInfo;
 import pl.doleckijakub.mc.common.Minigame;
 import pl.doleckijakub.mc.common.MinigameManager;
 import pl.doleckijakub.mc.common.PluginCommand;
+import pl.doleckijakub.mc.util.EnglishUtil;
 
 import javax.naming.InvalidNameException;
 import java.security.InvalidKeyException;
@@ -46,7 +47,7 @@ public class PlayCommand extends PluginCommand {
                     } else {
                         player.sendMessage(ChatColor.GOLD + "Current");
                         for (int gameId : minigames.keySet()) {
-                            TextComponent message = new TextComponent(ChatColor.GREEN + minigameName + "_" + String.format("%04d", gameId) + ChatColor.RESET + ": " + minigames.get(gameId).getGameStateString() + ChatColor.RESET + " (" + minigames.get(gameId).getPlayerCount() + " players)");
+                            TextComponent message = new TextComponent(ChatColor.GREEN + minigameName + "_" + String.format("%04d", gameId) + ChatColor.RESET + ": " + minigames.get(gameId).getGameStateString() + ChatColor.RESET + " (" + EnglishUtil.pluralize(minigames.get(gameId).getPlayerCount(), "player") + ")");
                             message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + getCommandInfo().name() + " " + minigameName + " " + String.format("%04d", gameId)));
                             player.spigot().sendMessage(message);
                         }

@@ -643,11 +643,6 @@ public class MinigameEventHandler implements Listener {
     }
 
     @EventHandler
-    public void onPlayerQuitEvent(PlayerQuitEvent e) {
-        MinigameManager.getMinigameByPlayer(e.getPlayer()).removePlayer(e.getPlayer());
-    }
-
-    @EventHandler
     public void onPlayerToggleFlightEvent(PlayerToggleFlightEvent e) {
         MinigameManager.getMinigameByPlayer(e.getPlayer()).onPlayerToggleFlightEvent(e);
     }
@@ -759,6 +754,13 @@ public class MinigameEventHandler implements Listener {
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent e) {
         MinigameManager.playerJoinLobby(e.getPlayer());
+        e.setJoinMessage(null);
+    }
+
+    @EventHandler
+    public void onPlayerQuitEvent(PlayerQuitEvent e) {
+        MinigameManager.getMinigameByPlayer(e.getPlayer()).removePlayer(e.getPlayer());
+        e.setQuitMessage(null);
     }
 
 //    @EventHandler

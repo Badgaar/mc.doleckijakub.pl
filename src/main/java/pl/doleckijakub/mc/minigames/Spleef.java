@@ -2,6 +2,8 @@ package pl.doleckijakub.mc.minigames;
 
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -9,6 +11,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitTask;
 import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.common.GameWorld;
@@ -16,6 +19,8 @@ import pl.doleckijakub.mc.common.Minigame;
 import pl.doleckijakub.mc.common.MinigameManager;
 import pl.doleckijakub.mc.util.PlayerUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -47,7 +52,7 @@ public class Spleef extends Minigame {
     private final GameWorld lobbyWorld;
     private final GameWorld gameWorld;
 
-    private int secsLeft;
+    private int countdown;
     private BukkitTask timer;
 
     private Player winner;
@@ -122,17 +127,22 @@ public class Spleef extends Minigame {
                 if (newGameState == GameState.FINISHED) {
                     broadcastMessage(ChatColor.GREEN + "Player " + winner.getName() + " won the game");
 
-                    secsLeft = 10;
+                    countdown = 40;
                     timer = Bukkit.getScheduler().runTaskTimer(Plugin.getInstance(), () -> {
-                        broadcastMessage("Closing in " + secsLeft-- + "...");
+                        Firework firework = (Firework) getWorld().spawnEntity(winner.getLocation(), EntityType.FIREWORK);
+                            FireworkMeta fireworkMeta = firework.getFireworkMeta();
+                            fireworkMeta.setPower(2);
+                            fireworkMeta.addEffect(FireworkEffect.builder().withColor(Color.fromRGB(
+                                    ThreadLocalRandom.current().nextInt(255),
+                                    ThreadLocalRandom.current().nextInt(255),
+                                    ThreadLocalRandom.current().nextInt(255)
+                            )).flicker(true).build());
 
-                        if (secsLeft == 0) {
-                            for (Player player : getPlayers()) {
-                                MinigameManager.playerJoinLobby(player);
-                            }
+                        if (countdown-- == 0) {
+                            teleportAllPlayersToLobby();
                             timer.cancel();
                         }
-                    }, 20, 20);
+                    }, 20, 5);
                 } else {
                     throw new IllegalStateException("unreachable");
                 }
@@ -176,25 +186,15 @@ public class Spleef extends Minigame {
             case LOBBY: {
                 PlayerUtil.resetAdventure(player);
                 if (getPlayerCount() == MIN_PLAYERS) {
-                    secsLeft = COUNTDOWN_LENGTH;
+                    countdown = COUNTDOWN_LENGTH;
                     timer = Bukkit.getScheduler().runTaskTimer(Plugin.getInstance(), () -> {
                         broadcastSound(Sound.CLICK, 1, 1);
-                        switch (secsLeft) {
-                            case 10:
-                            case 5: {
-                                broadcastMessage(ChatColor.GOLD + "Starting in " + secsLeft);
-                            } break;
-                            case 3:
-                            case 2:
-                            case 1: {
-                                broadcastMessage(ChatColor.RED + "Starting in " + secsLeft);
-                            } break;
-                            case 0: {
-                                setGameState(GameState.RUNNING);
-                                timer.cancel();
-                            } break;
+                        broadcastMessage((countdown > 5 ? ChatColor.GOLD : ChatColor.RED) + "Starting in " + countdown);
+
+                        if (countdown-- == 0) {
+                            setGameState(GameState.RUNNING);
+                            timer.cancel();
                         }
-                        --secsLeft;
                     }, 20, 20);
                 }
             } break;

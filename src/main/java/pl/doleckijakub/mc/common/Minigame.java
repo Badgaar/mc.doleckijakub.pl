@@ -18,7 +18,9 @@ import pl.doleckijakub.mc.minigames.Lobby;
 import pl.doleckijakub.mc.util.ANSI;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public abstract class Minigame {
@@ -40,11 +42,15 @@ public abstract class Minigame {
 	}
 
     public void addPlayer(Player player) {
+		Bukkit.getLogger().info(ANSI.CYAN + "addPlayer(" + player.getName() + ")" + ANSI.RESET);
+
         players.add(player);
         onPlayerJoin(player);
     }
 
     public void removePlayer(Player player) {
+		Bukkit.getLogger().info(ANSI.CYAN + "removePlayer(" + player.getName() + ")" + ANSI.RESET);
+
         players.remove(player);
         onPlayerLeave(player);
 
@@ -64,21 +70,28 @@ public abstract class Minigame {
         return players.size();
     }
 
-	protected void broadcastSound(Location location, Sound sound, float volume, float pitch) {
+	public void broadcastSound(Location location, Sound sound, float volume, float pitch) {
 		for (Player player : players) {
 			player.playSound(location, sound, volume, pitch);
 		}
 	}
 
-	protected void broadcastSound(Sound sound, float volume, float pitch) {
+	public void broadcastSound(Sound sound, float volume, float pitch) {
 		for (Player player : players) {
 			player.playSound(player.getLocation(), sound, volume, pitch);
 		}
 	}
 
-	protected void broadcastMessage(String message) {
+	public void broadcastMessage(String message) {
 		for (Player player : players) {
 			player.sendMessage(message);
+		}
+	}
+
+	public void teleportAllPlayersToLobby() {
+		List<Player> players = new ArrayList<>(getPlayers());
+		for (Player player : players) {
+			MinigameManager.playerJoinLobby(player);
 		}
 	}
 

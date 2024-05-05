@@ -1,9 +1,6 @@
 package pl.doleckijakub.mc.common;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.util.ANSI;
@@ -11,6 +8,7 @@ import pl.doleckijakub.mc.util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,7 +61,7 @@ public class GameWorld {
     public void unload() {
         Bukkit.getLogger().info(ANSI.BLUE + "Unloading " + directory.getName() + ANSI.RESET);
 
-        for (Player player : world.getPlayers()) player.kickPlayer("Unloading world");
+        for (Player player : world.getPlayers()) MinigameManager.playerJoinLobby(player);
         Bukkit.unloadWorld(world, false);
         FileUtils.delete(directory);
 

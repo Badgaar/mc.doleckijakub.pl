@@ -47,4 +47,10 @@ public final class PlayerUtil {
         reset(player);
         player.setGameMode(GameMode.SPECTATOR);
     }
+
+    public static void resetCreative(Player player) {
+        reset(player);
+        player.setGameMode(GameMode.CREATIVE);
+    }
+
 }

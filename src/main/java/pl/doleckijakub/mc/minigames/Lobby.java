@@ -2,14 +2,15 @@ package pl.doleckijakub.mc.minigames;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Snowball;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import pl.doleckijakub.mc.common.Minigame;
 import pl.doleckijakub.mc.util.PlayerUtil;
+
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Lobby extends Minigame {
 
@@ -21,7 +22,7 @@ public class Lobby extends Minigame {
 
     @Override
     public String getGameStateString() {
-        return null;
+        throw new IllegalStateException("unreachable");
     }
 
     @Override
@@ -32,12 +33,26 @@ public class Lobby extends Minigame {
     @Override
     public void onPlayerJoin(Player player) {
         PlayerUtil.resetAdventure(player);
-        player.setAllowFlight(true);
     }
 
     @Override
     public void onPlayerLeave(Player player) {
 
+    }
+
+    private String colorizedPlayerName(Player player) {
+        String name = player.getName();
+
+        switch (name) {
+            case "qubix00n":     return ChatColor.DARK_RED + name;
+            case "SimpleBadger": return ChatColor.GOLD + name;
+            default:             return name;
+        }
+    }
+
+    @Override
+    public void onPlayerChatMessage(Player player, String message) {
+        broadcastMessage(colorizedPlayerName(player) + ChatColor.GRAY + " » " + ChatColor.RESET + message);
     }
 
     @Override
@@ -78,7 +93,7 @@ public class Lobby extends Minigame {
     @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        if (player.getLocation().subtract(0, 64, 0).length() > 50) {
+        if (player.getLocation().subtract(0, 64, 0).length() > 50 || player.getLocation().getY() < 60.5) {
             player.setFallDistance(0);
             teleportPlayer(player);
         }

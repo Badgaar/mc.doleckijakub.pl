@@ -2,7 +2,6 @@ package pl.doleckijakub.mc.common;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
 import org.bukkit.event.server.*;
 import org.bukkit.event.weather.*;
 import org.bukkit.event.vehicle.*;
@@ -37,19 +36,27 @@ public abstract class Minigame {
         return id;
     }
 
+	public String getDebugName() {
+		return MinigameManager.getMinigameName(getClass()) + "_" + String.format("%04d", getId());
+	}
+
+	protected void log(String message) {
+		Bukkit.getLogger().info(ANSI.CYAN + getDebugName() + ": " + ANSI.RESET + message);
+	}
+
 	protected final Set<Player> getPlayers() {
 		return players;
 	}
 
     public void addPlayer(Player player) {
-		Bukkit.getLogger().info(ANSI.CYAN + "addPlayer(" + player.getName() + ")" + ANSI.RESET);
+		log("addPlayer(" + player.getName() + ")");
 
         players.add(player);
         onPlayerJoin(player);
     }
 
     public void removePlayer(Player player) {
-		Bukkit.getLogger().info(ANSI.CYAN + "removePlayer(" + player.getName() + ")" + ANSI.RESET);
+		log("removePlayer(" + player.getName() + ")");
 
         players.remove(player);
         onPlayerLeave(player);
@@ -102,6 +109,8 @@ public abstract class Minigame {
 	public abstract void teleportPlayer(Player player);
     public abstract void onPlayerJoin(Player player);
     public abstract void onPlayerLeave(Player player);
+
+	public abstract void onPlayerChatMessage(Player player, String message);
 
 	public abstract void cleanUp();
 

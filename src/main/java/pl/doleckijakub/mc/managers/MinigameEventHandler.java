@@ -9,6 +9,7 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.*;
+import org.bukkit.event.inventory.*;
 import pl.doleckijakub.mc.common.Minigame;
 import pl.doleckijakub.mc.common.MinigameManager;
 import pl.doleckijakub.mc.util.ANSI;
@@ -250,10 +251,10 @@ public class MinigameEventHandler implements Listener {
 //
 //    }
 
-//    @EventHandler
-//    public void onInventoryCloseEvent(InventoryCloseEvent e) {
-//
-//    }
+    @EventHandler
+    public void onInventoryCloseEvent(InventoryCloseEvent e) {
+        MinigameManager.getMinigameByPlayer((Player) e.getPlayer()).onInventoryCloseEvent(e);
+    }
 
 //    @EventHandler
 //    public void onCraftItemEvent(CraftItemEvent e) {
@@ -295,10 +296,10 @@ public class MinigameEventHandler implements Listener {
 //
 //    }
 
-//    @EventHandler
-//    public void onInventoryClickEvent(InventoryClickEvent e) {
-//        MinigameManager.getMinigameByPlayer((Player) e.getWhoClicked()).onInventoryClickEvent(e);
-//    }
+    @EventHandler
+    public void onInventoryClickEvent(InventoryClickEvent e) {
+        MinigameManager.getMinigameByPlayer((Player) e.getWhoClicked()).onInventoryClickEvent(e);
+    }
 
 //    @EventHandler
 //    public void onInventoryDragEvent(InventoryDragEvent e) {

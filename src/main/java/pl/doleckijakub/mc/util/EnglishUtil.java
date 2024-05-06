@@ -8,4 +8,8 @@ public final class EnglishUtil {
         return result;
     }
 
+    public static String firstUpper(String s) {
+        return (s.charAt(0) + "").toUpperCase() + s.substring(1).toLowerCase();
+    }
+
 }

@@ -116,6 +116,32 @@ public class GameWorld {
         saveConfig();
     }
 
+    public int getConfigInt(String path) {
+        return config.getInt(path);
+    }
+
+    public void setConfigInt(String path, int value) {
+        config.set(path, value);
+        saveConfig();
+    }
+
+    public Location getConfigLocation(String path) {
+        return new Location(
+                world,
+                (Double) config.get(path + ".x"),
+                (Double) config.get(path + ".y"),
+                (Double) config.get(path + ".z")
+        );
+    }
+
+    public void setConfigLocation(String path, Location value) {
+        if (!value.getWorld().equals(world)) throw new RuntimeException("location not in the same world as GameWorld's world");
+        config.set(path + ".x", value.getX());
+        config.set(path + ".y", value.getY());
+        config.set(path + ".z", value.getZ());
+        saveConfig();
+    }
+
     public static void unloadAll() {
         for (GameWorld gameWorld : INSTANCES) {
             gameWorld.unload();

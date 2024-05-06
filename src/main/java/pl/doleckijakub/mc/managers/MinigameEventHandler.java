@@ -2,17 +2,15 @@ package pl.doleckijakub.mc.managers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.*;
+import pl.doleckijakub.mc.common.Minigame;
 import pl.doleckijakub.mc.common.MinigameManager;
-import pl.doleckijakub.mc.minigames.Lobby;
 import pl.doleckijakub.mc.util.ANSI;
 
 public class MinigameEventHandler implements Listener {
@@ -672,7 +670,8 @@ public class MinigameEventHandler implements Listener {
                 e.setCancelled(true);
             } break;
             case UNKNOWN: {
-                Bukkit.getLogger().info(ANSI.RED + "Player " + e.getPlayer() + " teleported by cause: UNKNOWN" + ANSI.RESET);
+                Bukkit.getLogger().warning(ANSI.RED + "Player " + e.getPlayer() + " teleported by cause: UNKNOWN" + ANSI.RESET);
+                e.setCancelled(true);
             } break;
         }
 //        Bukkit.getLogger().info(ANSI.PURPLE + "onPlayerTeleportEvent " + e + ANSI.RESET);
@@ -853,10 +852,17 @@ public class MinigameEventHandler implements Listener {
 //        MinigameManager.getMinigameByPlayer(e.getPlayer()).onPlayerInventoryEvent(e);
 //    }
 
-//    @EventHandler
-//    public void onPlayerChatEvent(PlayerChatEvent e) {
-//        MinigameManager.getMinigameByPlayer(e.getPlayer()).onPlayerChatEvent(e);
-//    }
+    @EventHandler
+    public void onPlayerChatEvent(PlayerChatEvent e) {
+        Player player = e.getPlayer();
+        String message = e.getMessage();
+        Minigame minigame = MinigameManager.getMinigameByPlayer(player);
+
+        Bukkit.getLogger().info(String.format("<%s@%s> %s", player.getName(), minigame.getDebugName(), message));
+        minigame.onPlayerChatMessage(player, message);
+
+        e.setCancelled(true);
+    }
 
     @EventHandler
     public void onPlayerLoginEvent(PlayerLoginEvent e) {

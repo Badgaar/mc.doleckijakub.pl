@@ -93,6 +93,11 @@ public class TNTRun extends Minigame{
     }
 
     @Override
+    public void onPlayerChatMessage(Player player, String message) {
+        broadcastMessage(player.getName() + ChatColor.GRAY + " » " + ChatColor.RESET + message);
+    }
+
+    @Override
     public void cleanUp() {
         gameWorld.unload();
     }

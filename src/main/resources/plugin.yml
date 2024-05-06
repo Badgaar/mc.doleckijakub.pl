@@ -6,3 +6,5 @@ commands:
     description: Join a minigame
   lobby:
     description: Teleport to lobby
+  configure:
+    description: Change the GameWorld configuration

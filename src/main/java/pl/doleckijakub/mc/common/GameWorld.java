@@ -1,6 +1,8 @@
 package pl.doleckijakub.mc.common;
 
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.util.ANSI;
@@ -10,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.MissingResourceException;
 import java.util.Set;
 
 public class GameWorld {
@@ -22,6 +25,9 @@ public class GameWorld {
     private final File directory;
     private final World world;
 
+    private final File configFile;
+    private final FileConfiguration config;
+
     public GameWorld(String worldName) {
         this.worldName = worldName;
 
@@ -32,28 +38,41 @@ public class GameWorld {
                 worldName
         );
 
-        if (!source.exists()) throw new RuntimeException("Missing directory: " + source.getAbsolutePath());
+        { // world
 
-        this.directory = new File(
-                Bukkit.getWorldContainer().getParentFile(),
-                "gameworld_" + worldName + "_" + System.currentTimeMillis()
-        );
+            if (!source.exists()) throw new RuntimeException("Missing directory: " + source.getAbsolutePath());
 
-        try {
-            FileUtils.copy(source, directory);
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "Failed to copy " + source.getAbsolutePath() +
-                    " to " + directory.getAbsolutePath() +
-                    ", because: " + e
+            this.directory = new File(
+                    Bukkit.getWorldContainer().getParentFile(),
+                    "gameworld_" + worldName + "_" + System.currentTimeMillis()
             );
+
+            try {
+                FileUtils.copy(source, directory);
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Failed to copy " + source.getAbsolutePath() +
+                                " to " + directory.getAbsolutePath() +
+                                ", because: " + e
+                );
+            }
+
+            this.world = Bukkit.createWorld(
+                    new WorldCreator(directory.getName())
+            );
+
+            world.setAutoSave(false);
+
         }
 
-        this.world = Bukkit.createWorld(
-                new WorldCreator(directory.getName())
-        );
+        { // config
 
-        world.setAutoSave(false);
+            configFile = new File(source, "gameworld_config.yml");
+//            if (!configFile.exists()) throw new RuntimeException("File " + configFile.getAbsolutePath() + " not found");
+
+            config = YamlConfiguration.loadConfiguration(configFile);
+
+        }
 
         INSTANCES.add(this);
     }
@@ -74,6 +93,27 @@ public class GameWorld {
 
     public World getWorld() {
         return world;
+    }
+
+    public void saveConfig() {
+        try {
+            config.save(configFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getConfigAsString() {
+        return config.saveToString();
+    }
+
+    public String getConfigString(String path) {
+        return config.getString(path);
+    }
+
+    public void setConfigString(String path, String value) {
+        config.set(path, value);
+        saveConfig();
     }
 
     public static void unloadAll() {

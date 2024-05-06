@@ -228,6 +228,11 @@ public class Spleef extends Minigame {
     }
 
     @Override
+    public void onPlayerChatMessage(Player player, String message) {
+        broadcastMessage(player.getName() + ChatColor.GRAY + " » " + ChatColor.RESET + message);
+    }
+
+    @Override
     public void cleanUp() {
         lobbyWorld.unload();
         gameWorld.unload();
@@ -269,6 +274,7 @@ public class Spleef extends Minigame {
     public void onPlayerDeathEvent(PlayerDeathEvent e) {
         e.getEntity().spigot().respawn();
         PlayerUtil.resetSpectator(e.getEntity());
+        e.getEntity().setFallDistance(0);
         e.getEntity().teleport(getRandomGameWorldSpawnLocation());
         checkWin();
     }

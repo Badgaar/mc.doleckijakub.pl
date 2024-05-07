@@ -150,7 +150,7 @@ public class TNTRun extends Minigame{
                         double z = 0;
 
                         return new Location(gameWorld.getWorld(), x, y, z);
-                    } break;
+                    }
                     case RUNNING:
                     case FINISHED:
                 } break;

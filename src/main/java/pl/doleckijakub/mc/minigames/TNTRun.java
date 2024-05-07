@@ -105,7 +105,6 @@ public class TNTRun extends Minigame{
 
                         @Override
                         public void tick(int ticksLeft) {
-                            broadcastSound(Sound.ENDERDRAGON_GROWL, 2, 3);
                             ChatColor titleColor = (ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED);
                             player.sendTitle( "", titleColor + "Starting in " + ticksLeft);
                         }
@@ -159,13 +158,16 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        if ((gameState) == GameState.RUNNING) {
+        if (gameState == GameState.RUNNING) {
             Player player = e.getPlayer();
 
             Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
             Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
 
-            if (blockBelowPlayer.getType() != Material.AIR && gameState == GameState.RUNNING) {
+            Bukkit.broadcastMessage("blockBelowPlayer " + player.getName() + " " + blockBelowPlayer.getType());
+            Bukkit.broadcastMessage("blockBelowBlockBelowPlayer " + player.getName() + " " + blockBelowBlockBelowPlayer.getType());
+
+            if (blockBelowPlayer.getType() != Material.AIR) {
                 blockBelowPlayer.setType(Material.AIR);
                 blockBelowBlockBelowPlayer.setType(Material.AIR);
             }

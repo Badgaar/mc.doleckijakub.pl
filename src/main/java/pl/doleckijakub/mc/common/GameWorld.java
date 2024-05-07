@@ -126,12 +126,16 @@ public class GameWorld {
     }
 
     public Location getConfigLocation(String path) {
-        return new Location(
-                world,
-                (Double) config.get(path + ".x"),
-                (Double) config.get(path + ".y"),
-                (Double) config.get(path + ".z")
-        );
+        try {
+            return new Location(
+                    world,
+                    (Double) config.get(path + ".x"),
+                    (Double) config.get(path + ".y"),
+                    (Double) config.get(path + ".z")
+            );
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
     public void setConfigLocation(String path, Location value) {

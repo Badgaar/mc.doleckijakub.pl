@@ -2,7 +2,9 @@ package pl.doleckijakub.mc.minigames;
 
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
+import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
@@ -10,7 +12,7 @@ import org.bukkit.material.Wool;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class Bedwars extends Minigame {
 
@@ -22,6 +24,19 @@ public class Bedwars extends Minigame {
         SOLO,
         DUO,
         TEAMS;
+
+        public int getTeamSize() {
+            switch (this) {
+                case SOLO:
+                    return 1;
+                case DUO:
+                    return 2;
+                case TEAMS:
+                    return 4;
+            }
+
+            throw new IllegalStateException("unreachable");
+        }
     }
 
     public enum TeamColor {
@@ -104,18 +119,44 @@ public class Bedwars extends Minigame {
 
     private GameState gameState;
 
-    public static class Team {
+    public static class Island {
 
     }
 
-    private GameWorld lobbyWorld;
-    private GameWorld gameWorld;
+    private final List<Island> islands;
+
+    public static class Team {
+        private Block bed;
+    }
+
+    private final List<Team> teams;
+
+    private final GameWorld lobbyWorld;
+    private final GameWorld gameWorld;
 
     public Bedwars(GameType gameType) {
         this.gameType = gameType;
 
         this.lobbyWorld = new GameWorld("bedwars_lobby");
         this.gameWorld = new GameWorld("bedwars_map_treasure_island");
+
+        Set<Player> players = new HashSet<>(getPlayers());
+
+        this.islands = new ArrayList<>();
+        for (TeamColor teamColor : TeamColor.values()) {
+            Location bed = gameWorld.getConfigLocation("team." + teamColor.toString().toLowerCase() + ".bed");
+            if (bed == null) continue;
+
+            Location shop = gameWorld.getConfigLocation("team." + teamColor.toString().toLowerCase() + ".bed");
+            if (shop == null) continue;
+
+            Location upgrades = gameWorld.getConfigLocation("team." + teamColor.toString().toLowerCase() + ".bed");
+            if (upgrades == null) continue;
+
+            Location summoner = gameWorld.getConfigLocation("team." + teamColor.toString().toLowerCase() + ".bed");
+            if (summoner == null) continue;
+        }
+
     }
 
     @Override

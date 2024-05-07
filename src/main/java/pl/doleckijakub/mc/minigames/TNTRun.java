@@ -60,7 +60,7 @@ public class TNTRun extends Minigame{
 
     @Override
     public void teleportPlayer(Player player) {
-        player.teleport(gameWorld.getWorld().getSpawnLocation());
+        player.teleport(getSpawn());
     }
 
     private void setGameState(GameState newgamestate){
@@ -104,6 +104,8 @@ public class TNTRun extends Minigame{
                 PlayerUtil.resetSpectator(player);
             } break;
         }
+
+        teleportPlayer(player);
     }
 
     @Override
@@ -143,12 +145,17 @@ public class TNTRun extends Minigame{
 
         switch (worldName) {
             case "tntrun_map_0": {
+                switch (gameState) {
+                    case WAITING: {
+                        double x = 1;
+                        double y = 85;
+                        double z = 0;
 
-                double x = 1;
-                double y = 85;
-                double z = 0;
-
-                return new Location(gameWorld.getWorld(), x, y, z);
+                        return new Location(gameWorld.getWorld(), x, y, z);
+                    }
+                    case RUNNING:
+                    case FINISHED:
+                } break;
             }
         }
 

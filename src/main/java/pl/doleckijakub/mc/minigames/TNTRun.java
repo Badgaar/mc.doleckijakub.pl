@@ -3,6 +3,7 @@ package pl.doleckijakub.mc.minigames;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import pl.doleckijakub.mc.common.GameWorld;
@@ -52,6 +53,8 @@ public class TNTRun extends Minigame{
         super();
         this.gameState = GameState.WAITING;
         this.gameWorld = new GameWorld("tntrun_map_0");
+        gameWorld.getWorld().setDifficulty(Difficulty.PEACEFUL);
+        gameWorld.getWorld().setGameRuleValue("doDaylightCycle", "false");
     }
 
     @Override
@@ -62,10 +65,6 @@ public class TNTRun extends Minigame{
     @Override
     public void teleportPlayer(Player player) {
         player.teleport(getSpawn());
-    }
-
-    private void setDifficulty(){
-        Bukkit.getWorld("tntrun_map_0").setDifficulty(Difficulty.PEACEFUL);
     }
 
     private Location getSpawn() {
@@ -90,7 +89,6 @@ public class TNTRun extends Minigame{
             case RUNNING: {
                 gameState = gameState.RUNNING;
                 broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
-                setDifficulty();
             }
             case FINISHED: {
                 gameState = gameState.FINISHED;
@@ -180,9 +178,6 @@ public class TNTRun extends Minigame{
             Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
             Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
 
-            Bukkit.broadcastMessage("blockBelowPlayer " + player.getName() + " " + blockBelowPlayer.getType());
-            Bukkit.broadcastMessage("blockBelowBlockBelowPlayer " + player.getName() + " " + blockBelowBlockBelowPlayer.getType());
-
             if (blockBelowPlayer.getType() != Material.AIR) {
                 blockBelowPlayer.setType(Material.AIR);
                 blockBelowBlockBelowPlayer.setType(Material.AIR);
@@ -196,5 +191,14 @@ public class TNTRun extends Minigame{
         PlayerUtil.resetSpectator(e.getEntity());
         e.getEntity().teleport(getSpawn());
         checkWin();
+    }
+
+    @Override
+    public void onEntityDamageEvent(EntityDamageEvent e) {
+        e.setDamage(0);
+    }
+
+    public void isPlayerStanding(Player player){
+
     }
 }

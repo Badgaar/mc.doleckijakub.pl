@@ -63,6 +63,22 @@ public class TNTRun extends Minigame{
         player.teleport(getSpawn());
     }
 
+    private Location getSpawn() {
+        String worldName = gameWorld.getWorldName();
+        switch (worldName) {
+            case "tntrun_map_0": {
+
+                double x = 1;
+                double y = 85;
+                double z = 0;
+
+                return new Location(gameWorld.getWorld(), x, y, z);
+            }
+        }
+
+        throw new IllegalStateException("getSpawn() unimplemented for " + worldName);
+    }
+
     private void setGameState(GameState newgamestate){
         switch (newgamestate) {
             case WAITING: throw new IllegalStateException();
@@ -80,6 +96,9 @@ public class TNTRun extends Minigame{
     public void onPlayerJoin(Player player) {
         switch (gameState) {
             case WAITING: {
+
+                teleportPlayer(player);
+
                 PlayerUtil.resetAdventure(player);
                 if (getPlayerCount() == MIN_PLAYERS) {
                     countdown = new Countdown(COUNTDOWN_LENGTH, 10) {
@@ -104,8 +123,6 @@ public class TNTRun extends Minigame{
                 PlayerUtil.resetSpectator(player);
             } break;
         }
-
-        teleportPlayer(player);
     }
 
     @Override
@@ -138,22 +155,6 @@ public class TNTRun extends Minigame{
         } else {
             broadcastMessage(ChatColor.GOLD + "Only " + aliveLeft + " players remaining");
         }
-    }
-
-    private Location getSpawn() {
-        String worldName = gameWorld.getWorldName();
-        switch (worldName) {
-            case "tntrun_map_0": {
-
-                        double x = 1;
-                        double y = 85;
-                        double z = 0;
-
-                        return new Location(gameWorld.getWorld(), x, y, z);
-            }
-        }
-
-        throw new IllegalStateException("getSpawn() unimplemented for " + worldName);
     }
 
     @Override

@@ -35,8 +35,8 @@ public final class MinigameManager {
         MINIGAME_NAMES.put("spleef", Spleef.class);
         MINIGAME_NAMES.put("tntrun", TNTRun.class);
         MINIGAME_NAMES.put("bed_solo",  Bedwars.Solo.class);
-        MINIGAME_NAMES.put("bed_duo",   Bedwars.Duo.class);
-        MINIGAME_NAMES.put("bed_teams", Bedwars.Teams.class);
+//        MINIGAME_NAMES.put("bed_duo",   Bedwars.Duo.class);
+//        MINIGAME_NAMES.put("bed_teams", Bedwars.Teams.class);
 
         MINIGAME_NAMES_HIDDEN.put("lobby", Lobby.class);
         MINIGAME_NAMES_HIDDEN.put("config", WorldConfiguration.class);

@@ -11,6 +11,7 @@ import pl.doleckijakub.mc.util.Countdown;
 import pl.doleckijakub.mc.util.PlayerUtil;
 import pl.doleckijakub.mc.util.Countdown;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -83,10 +84,11 @@ public class TNTRun extends Minigame{
         switch (newgamestate) {
             case WAITING: throw new IllegalStateException();
             case RUNNING: {
-                // countdown 
+                gameState.RUNNING;
                 broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
             }
             case FINISHED: {
+                gameState.FINISHED;
                 broadcastSound(Sound.GHAST_MOAN, 1, 2);
             }
         }
@@ -96,8 +98,6 @@ public class TNTRun extends Minigame{
     public void onPlayerJoin(Player player) {
         switch (gameState) {
             case WAITING: {
-
-                teleportPlayer(player);
 
                 PlayerUtil.resetAdventure(player);
                 if (getPlayerCount() == MIN_PLAYERS) {
@@ -159,10 +159,7 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        switch (gameState) {
-            case WAITING:
-            case FINISHED: e.setCancelled(true);
-            case RUNNING: {
+        if ((gameState) == GameState.RUNNING) {
             Player player = e.getPlayer();
 
             Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
@@ -171,8 +168,7 @@ public class TNTRun extends Minigame{
             if (blockBelowPlayer.getType() != Material.AIR && gameState == GameState.RUNNING) {
                 blockBelowPlayer.setType(Material.AIR);
                 blockBelowBlockBelowPlayer.setType(Material.AIR);
-            } else super.onPlayerMoveEvent(e);
-            } break;
+            }
         }
     }
 

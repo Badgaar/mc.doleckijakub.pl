@@ -84,11 +84,11 @@ public class TNTRun extends Minigame{
         switch (newgamestate) {
             case WAITING: throw new IllegalStateException();
             case RUNNING: {
-                gameState.RUNNING;
+                gameState = gameState.RUNNING;
                 broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
             }
             case FINISHED: {
-                gameState.FINISHED;
+                gameState = gameState.FINISHED;
                 broadcastSound(Sound.GHAST_MOAN, 1, 2);
             }
         }

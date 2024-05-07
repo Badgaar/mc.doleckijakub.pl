@@ -5,10 +5,11 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import pl.doleckijakub.mc.Plugin;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
+import pl.doleckijakub.mc.util.Countdown;
 import pl.doleckijakub.mc.util.PlayerUtil;
+import pl.doleckijakub.mc.util.Countdown;
 
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,6 +19,7 @@ public class TNTRun extends Minigame{
 
     private static final int MIN_PLAYERS = 2;
     private static final int COUNTDOWN_LENGTH = 10;
+    private Countdown countdown;
 
     public enum GameState {
         WAITING,
@@ -76,8 +78,31 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerJoin(Player player) {
-        if(getPlayerCount()==MIN_PLAYERS) {
-            setGameState(GameState.RUNNING);
+        switch (gameState) {
+            case WAITING: {
+                PlayerUtil.resetAdventure(player);
+                if (getPlayerCount() == MIN_PLAYERS) {
+                    countdown = new Countdown(COUNTDOWN_LENGTH, 10) {
+
+                        @Override
+                        public void tick(int ticksLeft) {
+                            broadcastSound(Sound.ENDERDRAGON_GROWL, 2, 3);
+                            ChatColor titleColor = (ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED);
+                            player.sendTitle( "", titleColor + "Starting in " + ticksLeft);
+                        }
+
+                        @Override
+                        public void onFinished() {
+                            setGameState(GameState.RUNNING);
+                        }
+
+                    };
+                }
+            } break;
+            case RUNNING:
+            case FINISHED: {
+                PlayerUtil.resetSpectator(player);
+            } break;
         }
     }
 
@@ -102,7 +127,7 @@ public class TNTRun extends Minigame{
     }
 
     private void checkWin() {
-        Set<Player> alive = getPlayers().stream().filter(player -> player.getGameMode() == GameMode.SURVIVAL).collect(Collectors.toSet());
+        Set<Player> alive = getPlayers().stream().filter(player -> player.getGameMode() == GameMode.ADVENTURE).collect(Collectors.toSet());
         long aliveLeft = alive.size();
 
         if (aliveLeft == 1) {
@@ -113,43 +138,47 @@ public class TNTRun extends Minigame{
         }
     }
 
-    private Location getRandomGameWorldSpawnLocation() {
+    private Location getSpawn() {
         String worldName = gameWorld.getWorldName();
 
         switch (worldName) {
             case "tntrun_map_0": {
-                double r = ThreadLocalRandom.current().nextDouble(20, 40);
-                double theta = ThreadLocalRandom.current().nextDouble(Math.PI * 2);
 
-                double x = Math.cos(theta) * r;
-                double y = 76;
-                double z = Math.sin(theta) * r;
+                double x = 1;
+                double y = 85;
+                double z = 0;
 
                 return new Location(gameWorld.getWorld(), x, y, z);
             }
         }
 
-        throw new IllegalStateException("getRandomGameWorldSpawnLocation() unimplemented for " + worldName);
+        throw new IllegalStateException("getSpawn() unimplemented for " + worldName);
     }
 
     @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        Player player = e.getPlayer();
+        switch (gameState) {
+            case WAITING:
+            case FINISHED: e.setCancelled(true);
+            case RUNNING: {
+            Player player = e.getPlayer();
 
-        Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
-        Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
+            Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
+            Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
 
-        if (blockBelowPlayer.getType() != Material.AIR && gameState == GameState.RUNNING) {
-            blockBelowPlayer.setType(Material.AIR);
-            blockBelowBlockBelowPlayer.setType(Material.AIR);
-        } else super.onPlayerMoveEvent(e);
+            if (blockBelowPlayer.getType() != Material.AIR && gameState == GameState.RUNNING) {
+                blockBelowPlayer.setType(Material.AIR);
+                blockBelowBlockBelowPlayer.setType(Material.AIR);
+            } else super.onPlayerMoveEvent(e);
+            } break;
+        }
     }
 
     @Override
     public void onPlayerDeathEvent(PlayerDeathEvent e) {
         e.getEntity().spigot().respawn();
         PlayerUtil.resetSpectator(e.getEntity());
-        e.getEntity().teleport(getRandomGameWorldSpawnLocation());
+        e.getEntity().teleport(getSpawn());
         checkWin();
     }
   

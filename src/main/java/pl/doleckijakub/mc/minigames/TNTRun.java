@@ -109,7 +109,7 @@ public class TNTRun extends Minigame{
                         @Override
                         public void tick(int ticksLeft) {
                             ChatColor titleColor = (ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED);
-                            player.getPlayer().sendTitle( "", titleColor + "Starting in " + ticksLeft);
+                            sendTitle( "", titleColor + "Starting in " + ticksLeft);
                         }
 
                         @Override
@@ -179,6 +179,7 @@ public class TNTRun extends Minigame{
             Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
 
             if (blockBelowPlayer.getType() != Material.AIR) {
+                Thread.sleep(500);
                 blockBelowPlayer.setType(Material.AIR);
                 blockBelowBlockBelowPlayer.setType(Material.AIR);
             }
@@ -195,10 +196,15 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onEntityDamageEvent(EntityDamageEvent e) {
-        e.setDamage(0);
+        if(Location getWorld().) {
+            e.setDamage(0);
+        }
     }
 
-    public void isPlayerStanding(Player player){
-
+    //Check if a player has moved. If he didn't call onPlayerMoveEvent
+    public void isPlayerStill(Player player){
+        if(!(e.getFrom().getZ() != e.getTo().getZ() && e.getFrom().getX() != e.getTo().getX())){
+            super(onPlayerMoveEvent());
+        }
     }
 }

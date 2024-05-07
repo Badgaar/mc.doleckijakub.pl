@@ -11,6 +11,7 @@ import pl.doleckijakub.mc.util.Countdown;
 import pl.doleckijakub.mc.util.PlayerUtil;
 import pl.doleckijakub.mc.util.Countdown;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -67,7 +68,6 @@ public class TNTRun extends Minigame{
         switch (newgamestate) {
             case WAITING: throw new IllegalStateException();
             case RUNNING: {
-                // countdown 
                 broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
             }
             case FINISHED: {
@@ -86,7 +86,6 @@ public class TNTRun extends Minigame{
 
                         @Override
                         public void tick(int ticksLeft) {
-                            broadcastSound(Sound.ENDERDRAGON_GROWL, 2, 3);
                             ChatColor titleColor = (ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED);
                             player.sendTitle( "", titleColor + "Starting in " + ticksLeft);
                         }
@@ -104,8 +103,6 @@ public class TNTRun extends Minigame{
                 PlayerUtil.resetSpectator(player);
             } break;
         }
-
-        teleportPlayer(player);
     }
 
     @Override
@@ -158,20 +155,19 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
-        switch (gameState) {
-            case WAITING:
-            case FINISHED: e.setCancelled(true);
-            case RUNNING: {
+        if (gameState == GameState.RUNNING) {
             Player player = e.getPlayer();
 
             Block blockBelowPlayer = player.getLocation().subtract(0, 1, 0).getBlock();
             Block blockBelowBlockBelowPlayer = player.getLocation().subtract(0, 2, 0).getBlock();
 
-            if (blockBelowPlayer.getType() != Material.AIR && gameState == GameState.RUNNING) {
+            Bukkit.broadcastMessage("blockBelowPlayer " + player.getName() + " " + blockBelowPlayer.getType());
+            Bukkit.broadcastMessage("blockBelowBlockBelowPlayer " + player.getName() + " " + blockBelowBlockBelowPlayer.getType());
+
+            if (blockBelowPlayer.getType() != Material.AIR) {
                 blockBelowPlayer.setType(Material.AIR);
                 blockBelowBlockBelowPlayer.setType(Material.AIR);
-            } else super.onPlayerMoveEvent(e);
-            } break;
+            }
         }
     }
 

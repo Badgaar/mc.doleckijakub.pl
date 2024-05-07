@@ -1,5 +1,6 @@
 package pl.doleckijakub.mc.minigames;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.VoidType;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -17,6 +18,7 @@ import pl.doleckijakub.mc.util.PlayerUtil;
 import java.util.concurrent.CompletableFuture;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -111,14 +113,14 @@ public class WorldConfiguration extends Minigame {
         return chooserFuture;
     }
 
-    private void chooseTeam(Player player, Function<Bedwars.TeamColor, Void> callback) {
+    private void chooseTeam(Player player, Consumer<Bedwars.TeamColor> callback) {
         List<ItemStack> wools = Arrays.stream(Bedwars.TeamColor.values()).map(Bedwars.TeamColor::getWoolItemStack).collect(Collectors.toList());
         ItemStack[] items = new ItemStack[wools.size()];
         for (int i = 0; i < wools.size(); i++) items[i] = wools.get(i);
 
         chooseItem(player, items).thenAccept(itemStack -> {
             Bedwars.TeamColor teamColor = Bedwars.TeamColor.fromWoolItem(itemStack);
-            callback.apply(teamColor);
+            callback.accept(teamColor);
         });
     }
 
@@ -155,15 +157,28 @@ public class WorldConfiguration extends Minigame {
                 });
             } break;
             case STICK: {
-
+                chooseTeam(player, teamColor -> {
+                    String path = "team." + teamColor.toString().toLowerCase() + ".shop";
+                    gameWorld.setConfigLocation(path, e.getBlock().getLocation());
+                    player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "shop is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
+                });
             } break;
             case BLAZE_ROD: {
-
+                chooseTeam(player, teamColor -> {
+                    String path = "team." + teamColor.toString().toLowerCase() + ".upgrades";
+                    gameWorld.setConfigLocation(path, e.getBlock().getLocation());
+                    player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "upgrades are now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
+                });
             } break;
             case IRON_INGOT: {
-
+                chooseTeam(player, teamColor -> {
+                    String path = "team." + teamColor.toString().toLowerCase() + ".summoner";
+                    gameWorld.setConfigLocation(path, e.getBlock().getLocation());
+                    player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "summoner is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
+                });
             } break;
             case DIAMOND: {
+
             } break;
             case EMERALD: {
 

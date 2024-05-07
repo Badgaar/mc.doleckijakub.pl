@@ -62,28 +62,22 @@ public class TNTRun extends Minigame{
     }
 
     private void setGameState(GameState newgamestate){
-        gameState.RUNNING;
-
-        switch (newgamestate){
+        switch (newgamestate) {
             case WAITING: throw new IllegalStateException();
             case RUNNING: {
-                for (Player player : gameWorld.getWorld().getPlayers()) {
-                    broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
-
-                    break;
-                }
+                // countdown 
+                broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
             }
             case FINISHED: {
                 broadcastSound(Sound.GHAST_MOAN, 1, 2);
-
             }
         }
     }
 
     @Override
     public void onPlayerJoin(Player player) {
-        if(getPlayerCount()==MIN_PLAYERS){
-        setGameState();
+        if(getPlayerCount()==MIN_PLAYERS) {
+            setGameState(GameState.RUNNING);
         }
     }
 
@@ -113,7 +107,7 @@ public class TNTRun extends Minigame{
 
         if (aliveLeft == 1) {
             winner = alive.stream().findFirst().get();
-            setGameState(Spleef.GameState.FINISHED);
+            setGameState(GameState.FINISHED);
         } else {
             broadcastMessage(ChatColor.GOLD + "Only " + aliveLeft + " players remaining");
         }

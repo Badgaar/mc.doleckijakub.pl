@@ -17,6 +17,7 @@ import pl.doleckijakub.mc.util.PlayerUtil;
 import java.util.concurrent.CompletableFuture;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class WorldConfiguration extends Minigame {
@@ -110,6 +111,17 @@ public class WorldConfiguration extends Minigame {
         return chooserFuture;
     }
 
+    private void chooseTeam(Player player, Function<Bedwars.TeamColor, Void> callback) {
+        List<ItemStack> wools = Arrays.stream(Bedwars.TeamColor.values()).map(Bedwars.TeamColor::getWoolItemStack).collect(Collectors.toList());
+        ItemStack[] items = new ItemStack[wools.size()];
+        for (int i = 0; i < wools.size(); i++) items[i] = wools.get(i);
+
+        chooseItem(player, items).thenAccept(itemStack -> {
+            Bedwars.TeamColor teamColor = Bedwars.TeamColor.fromWoolItem(itemStack);
+            callback.apply(teamColor);
+        });
+    }
+
     @Override
     public void onInventoryClickEvent(InventoryClickEvent e) {
         InventoryView view = e.getView();
@@ -136,11 +148,7 @@ public class WorldConfiguration extends Minigame {
         switch (player.getItemInHand().getType()) {
             case BED: {
                 if (type != Material.BED_BLOCK) { player.sendMessage(ChatColor.RED + "Not a bed"); return; }
-                List<ItemStack> wools = Arrays.stream(Bedwars.TeamColor.values()).map(Bedwars.TeamColor::getWoolItemStack).collect(Collectors.toList());
-                ItemStack[] items = new ItemStack[wools.size()];
-                for (int i = 0; i < wools.size(); i++) items[i] = wools.get(i);
-                chooseItem(player, items).thenAccept(itemStack -> {
-                    Bedwars.TeamColor teamColor = Bedwars.TeamColor.fromWoolItem(itemStack);
+                chooseTeam(player, teamColor -> {
                     String path = "team." + teamColor.toString().toLowerCase() + ".bed";
                     gameWorld.setConfigLocation(path, e.getBlock().getLocation());
                     player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "bed is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());

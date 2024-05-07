@@ -1,13 +1,23 @@
 package pl.doleckijakub.mc.minigames;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
+import pl.doleckijakub.mc.util.EnglishUtil;
 import pl.doleckijakub.mc.util.PlayerUtil;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorldConfiguration extends Minigame {
 
@@ -81,4 +91,78 @@ public class WorldConfiguration extends Minigame {
         return worldName;
     }
 
+    private static final String CHOOSER_TITLE = "Choose one from below";
+    private CompletableFuture<ItemStack> chooserFuture = null;
+
+    public CompletableFuture<ItemStack> chooseItem(Player player, ItemStack[] items) {
+        int inventorySize = (int) Math.ceil(items.length / 9.0) * 9;
+
+        Inventory chooserInventory = Bukkit.createInventory(null, inventorySize, CHOOSER_TITLE);
+        chooserInventory.clear();
+        for (ItemStack material : items) {
+            chooserInventory.addItem(new ItemStack(material));
+        }
+
+        player.openInventory(chooserInventory);
+
+        chooserFuture = new CompletableFuture<>();
+
+        return chooserFuture;
+    }
+
+    @Override
+    public void onInventoryClickEvent(InventoryClickEvent e) {
+        InventoryView view = e.getView();
+        if (view.getTitle().equals(CHOOSER_TITLE)) {
+            chooserFuture.complete(e.getCurrentItem());
+
+            e.setCancelled(true);
+            e.getWhoClicked().closeInventory();
+        }
+    }
+
+    @Override
+    public void onInventoryCloseEvent(InventoryCloseEvent e) {
+        if (!chooserFuture.isDone()) chooserFuture.cancel(false);
+    }
+
+    @Override
+    public void onBlockBreakEvent(BlockBreakEvent e) {
+        e.setCancelled(true);
+
+        Player player = e.getPlayer();
+        Material type = e.getBlock().getType();
+
+        switch (player.getItemInHand().getType()) {
+            case BED: {
+                if (type != Material.BED_BLOCK) { player.sendMessage(ChatColor.RED + "Not a bed"); return; }
+                List<ItemStack> wools = Arrays.stream(Bedwars.TeamColor.values()).map(Bedwars.TeamColor::getWoolItemStack).collect(Collectors.toList());
+                ItemStack[] items = new ItemStack[wools.size()];
+                for (int i = 0; i < wools.size(); i++) items[i] = wools.get(i);
+                chooseItem(player, items).thenAccept(itemStack -> {
+                    Bedwars.TeamColor teamColor = Bedwars.TeamColor.fromWoolItem(itemStack);
+                    String path = "team." + teamColor.toString().toLowerCase() + ".bed";
+                    gameWorld.setConfigLocation(path, e.getBlock().getLocation());
+                    player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "bed is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
+                });
+            } break;
+            case STICK: {
+
+            } break;
+            case BLAZE_ROD: {
+
+            } break;
+            case IRON_INGOT: {
+
+            } break;
+            case DIAMOND: {
+            } break;
+            case EMERALD: {
+
+            } break;
+            case ENDER_PEARL: {
+
+            } break;
+        }
+    }
 }

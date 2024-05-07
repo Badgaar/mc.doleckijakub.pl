@@ -1,10 +1,15 @@
 package pl.doleckijakub.mc.minigames;
 
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Wool;
 import pl.doleckijakub.mc.common.Minigame;
+
+import java.util.Arrays;
 
 public class Bedwars extends Minigame {
 
@@ -16,6 +21,65 @@ public class Bedwars extends Minigame {
         SOLO,
         DUO,
         TEAMS;
+    }
+
+    public enum TeamColor {
+        RED,
+        BLUE,
+        ORANGE,
+        MAGENTA,
+        AQUA,
+        YELLOW,
+        GREEN,
+        GRAY;
+
+        public ChatColor getChatColor() {
+            switch (this) {
+                case RED:     return ChatColor.DARK_RED;
+                case BLUE:    return ChatColor.DARK_BLUE;
+                case ORANGE:  return ChatColor.GOLD;
+                case MAGENTA: return ChatColor.LIGHT_PURPLE;
+                case AQUA:    return ChatColor.BLUE;
+                case YELLOW:  return ChatColor.YELLOW;
+                case GREEN:   return ChatColor.DARK_GREEN;
+                case GRAY:    return ChatColor.GRAY;
+            }
+
+            throw new RuntimeException("unimplemented");
+        }
+
+        public Wool getWool() {
+            switch (this) {
+                case RED:     return new Wool(DyeColor.RED);
+                case BLUE:    return new Wool(DyeColor.BLUE);
+                case ORANGE:  return new Wool(DyeColor.ORANGE);
+                case MAGENTA: return new Wool(DyeColor.MAGENTA);
+                case AQUA:    return new Wool(DyeColor.LIGHT_BLUE);
+                case YELLOW:  return new Wool(DyeColor.YELLOW);
+                case GREEN:   return new Wool(DyeColor.GREEN);
+                case GRAY:    return new Wool(DyeColor.SILVER);
+                default: throw new RuntimeException("unimplemented");
+            }
+        }
+
+        public ItemStack getWoolItemStack() {
+            return getWoolItemStack(1);
+        }
+
+        public ItemStack getWoolItemStack(int amount) {
+            ItemStack result = getWool().toItemStack();
+            result.setAmount(amount);
+            return result;
+        }
+
+        public static TeamColor fromWoolItem(ItemStack itemStack) {
+            return Arrays.stream(values()).filter(teamColor -> teamColor.isCorrectColorWool(itemStack)).findFirst().get();
+        }
+
+        private boolean isCorrectColorWool(ItemStack itemStack) {
+            return itemStack.isSimilar(getWoolItemStack());
+        }
+
     }
 
     private final GameType gameType;

@@ -64,6 +64,10 @@ public class TNTRun extends Minigame{
         player.teleport(getSpawn());
     }
 
+    private void setDifficulty(){
+        Bukkit.getWorld("tntrun_map_0").setDifficulty(Difficulty.PEACEFUL);
+    }
+
     private Location getSpawn() {
         String worldName = gameWorld.getWorldName();
         switch (worldName) {
@@ -86,6 +90,7 @@ public class TNTRun extends Minigame{
             case RUNNING: {
                 gameState = gameState.RUNNING;
                 broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
+                setDifficulty();
             }
             case FINISHED: {
                 gameState = gameState.FINISHED;
@@ -107,7 +112,7 @@ public class TNTRun extends Minigame{
                         public void tick(int ticksLeft) {
                             broadcastSound(Sound.ENDERDRAGON_GROWL, 2, 3);
                             ChatColor titleColor = (ticksLeft > 5 ? ChatColor.GOLD : ChatColor.RED);
-                            player.sendTitle( "", titleColor + "Starting in " + ticksLeft);
+                            player.getPlayer().sendTitle( "", titleColor + "Starting in " + ticksLeft);
                         }
 
                         @Override
@@ -127,9 +132,20 @@ public class TNTRun extends Minigame{
 
     @Override
     public void onPlayerLeave(Player player) {
-
+        switch (gameState) {
+            case WAITING: {
+                if (countdown != null && getPlayerCount() == MIN_PLAYERS - 1) {
+                    countdown.cancel();
+                    countdown = null;
+                }
+            } break;
+            case RUNNING: {
+                checkWin();
+            } break;
+            case FINISHED: {
+            } break;
+        }
     }
-
     @Override
     public void onPlayerChatMessage(Player player, String message) {
         broadcastMessage(player.getName() + ChatColor.GRAY + " » " + ChatColor.RESET + message);
@@ -179,5 +195,4 @@ public class TNTRun extends Minigame{
         e.getEntity().teleport(getSpawn());
         checkWin();
     }
-  
 }

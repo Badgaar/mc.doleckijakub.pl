@@ -143,12 +143,17 @@ public class TNTRun extends Minigame{
 
         switch (worldName) {
             case "tntrun_map_0": {
+                switch (gameState) {
+                    case WAITING: {
+                        double x = 1;
+                        double y = 85;
+                        double z = 0;
 
-                double x = 1;
-                double y = 85;
-                double z = 0;
-
-                return new Location(gameWorld.getWorld(), x, y, z);
+                        return new Location(gameWorld.getWorld(), x, y, z);
+                    } break;
+                    case RUNNING:
+                    case FINISHED:
+                } break;
             }
         }
 

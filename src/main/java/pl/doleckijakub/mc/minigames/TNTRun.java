@@ -60,7 +60,7 @@ public class TNTRun extends Minigame{
 
     @Override
     public void teleportPlayer(Player player) {
-        player.teleport(gameWorld.getWorld().getSpawnLocation());
+        player.teleport(getSpawn());
     }
 
     private void setGameState(GameState newgamestate){
@@ -104,6 +104,8 @@ public class TNTRun extends Minigame{
                 PlayerUtil.resetSpectator(player);
             } break;
         }
+
+        teleportPlayer(player);
     }
 
     @Override

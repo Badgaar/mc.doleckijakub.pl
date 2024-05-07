@@ -1,7 +1,9 @@
 package pl.doleckijakub.mc.minigames;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.VoidType;
 import org.bukkit.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -10,6 +12,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 import pl.doleckijakub.mc.util.EnglishUtil;
@@ -19,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class WorldConfiguration extends Minigame {
@@ -160,6 +163,10 @@ public class WorldConfiguration extends Minigame {
                 chooseTeam(player, teamColor -> {
                     String path = "team." + teamColor.toString().toLowerCase() + ".shop";
                     gameWorld.setConfigLocation(path, e.getBlock().getLocation());
+
+                    ArmorStand armorStand = (ArmorStand) getWorld().spawnEntity(e.getBlock().getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
+                    armorStand.setHelmet(new ItemStack(Material.IRON_HELMET));
+
                     player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "shop is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
                 });
             } break;
@@ -167,6 +174,10 @@ public class WorldConfiguration extends Minigame {
                 chooseTeam(player, teamColor -> {
                     String path = "team." + teamColor.toString().toLowerCase() + ".upgrades";
                     gameWorld.setConfigLocation(path, e.getBlock().getLocation());
+
+                    ArmorStand armorStand = (ArmorStand) getWorld().spawnEntity(e.getBlock().getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
+                    armorStand.setHelmet(new ItemStack(Material.GOLD_HELMET));
+
                     player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "upgrades are now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
                 });
             } break;
@@ -174,17 +185,61 @@ public class WorldConfiguration extends Minigame {
                 chooseTeam(player, teamColor -> {
                     String path = "team." + teamColor.toString().toLowerCase() + ".summoner";
                     gameWorld.setConfigLocation(path, e.getBlock().getLocation());
+
+                    ArmorStand armorStand = (ArmorStand) getWorld().spawnEntity(e.getBlock().getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
+                    armorStand.setHelmet(new ItemStack(Material.LEATHER_HELMET));
+
                     player.sendMessage(teamColor.getChatColor() + EnglishUtil.firstUpper(teamColor.toString()) + "'s " + ChatColor.RESET + "summoner is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
                 });
             } break;
             case DIAMOND: {
+                for (int i = 0; i < 4; i++) {
+                    String path = "summoner.diamond." + i;
+                    Location configLocation = gameWorld.getConfigLocation(path);
+                    if (configLocation == null) {
+                        gameWorld.setConfigLocation(path, e.getBlock().getLocation());
 
+                        ArmorStand armorStand = (ArmorStand) getWorld().spawnEntity(e.getBlock().getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
+                        armorStand.setHelmet(new ItemStack(Material.DIAMOND_HELMET));
+
+                        player.sendMessage("Diamond summoner nr. " + i + " is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
+                        return;
+                    }
+                }
+
+                player.sendMessage(ChatColor.RED + "All diamond summoners already set up");
             } break;
             case EMERALD: {
+                for (int i = 0; i < 4; i++) {
+                    String path = "summoner.emerald." + i;
+                    Location configLocation = gameWorld.getConfigLocation(path);
+                    if (configLocation == null) {
+                        gameWorld.setConfigLocation(path, e.getBlock().getLocation());
 
+                        ArmorStand armorStand = (ArmorStand) getWorld().spawnEntity(e.getBlock().getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
+                        armorStand.setHelmet(new ItemStack(Material.LEATHER_HELMET));
+                        LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) armorStand.getHelmet().getItemMeta();
+                        leatherArmorMeta.setColor(Color.fromRGB(0, 255, 0));
+                        armorStand.getHelmet().setItemMeta(leatherArmorMeta);
+
+                        player.sendMessage("Emerald summoner nr. " + i + " is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
+                        return;
+                    }
+                }
+
+                player.sendMessage(ChatColor.RED + "All emerald summoners already set up");
             } break;
             case ENDER_PEARL: {
+                String path = "specialist";
+                gameWorld.setConfigLocation(path, e.getBlock().getLocation());
 
+                ArmorStand armorStand = (ArmorStand) getWorld().spawnEntity(e.getBlock().getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
+                armorStand.setHelmet(new ItemStack(Material.LEATHER_HELMET));
+                LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) armorStand.getHelmet().getItemMeta();
+                leatherArmorMeta.setColor(Color.fromRGB(255, 0, 255));
+                armorStand.getHelmet().setItemMeta(leatherArmorMeta);
+
+                player.sendMessage("The specialist is now at " + ChatColor.GOLD + gameWorld.getConfigLocation(path).toVector().toString());
             } break;
         }
     }

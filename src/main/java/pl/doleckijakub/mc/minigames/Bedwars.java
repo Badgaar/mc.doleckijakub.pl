@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Wool;
+import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
 import java.util.Arrays;
@@ -14,8 +15,8 @@ import java.util.Arrays;
 public class Bedwars extends Minigame {
 
     public static class Solo  extends Bedwars { public Solo()  { super(GameType.SOLO);  } }
-    public static class Duo   extends Bedwars { public Duo()   { super(GameType.DUO);   } }
-    public static class Teams extends Bedwars { public Teams() { super(GameType.TEAMS); } }
+//    public static class Duo   extends Bedwars { public Duo()   { super(GameType.DUO);   } }
+//    public static class Teams extends Bedwars { public Teams() { super(GameType.TEAMS); } }
 
     public enum GameType {
         SOLO,
@@ -103,8 +104,18 @@ public class Bedwars extends Minigame {
 
     private GameState gameState;
 
+    public static class Team {
+
+    }
+
+    private GameWorld lobbyWorld;
+    private GameWorld gameWorld;
+
     public Bedwars(GameType gameType) {
         this.gameType = gameType;
+
+        this.lobbyWorld = new GameWorld("bedwars_lobby");
+        this.gameWorld = new GameWorld("bedwars_map_treasure_island");
     }
 
     @Override
@@ -114,7 +125,15 @@ public class Bedwars extends Minigame {
 
     @Override
     public void teleportPlayer(Player player) {
-        throw new IllegalStateException("unimplemented");
+        switch (gameState) {
+            case LOBBY:
+            case FINISHED:
+                player.teleport(lobbyWorld.getWorld().getSpawnLocation());
+                break;
+            case RUNNING:
+
+                break;
+        }
     }
 
     @Override

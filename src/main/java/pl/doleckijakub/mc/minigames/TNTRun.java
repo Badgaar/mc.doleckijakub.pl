@@ -200,11 +200,4 @@ public class TNTRun extends Minigame{
             e.setDamage(0);
         }
     }
-
-    //Check if a player has moved. If he didn't call onPlayerMoveEvent
-    public void isPlayerStill(Player player){
-        if(!(e.getFrom().getZ() != e.getTo().getZ() && e.getFrom().getX() != e.getTo().getX())){
-            super(onPlayerMoveEvent());
-        }
-    }
 }

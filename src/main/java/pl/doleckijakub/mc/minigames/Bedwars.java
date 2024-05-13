@@ -13,6 +13,7 @@ import pl.doleckijakub.mc.common.GameWorld;
 import pl.doleckijakub.mc.common.Minigame;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Bedwars extends Minigame {
 
@@ -119,14 +120,14 @@ public class Bedwars extends Minigame {
 
     private GameState gameState;
 
-    public static class Island {
-
-    }
-
-    private final List<Island> islands;
-
-    public static class Team {
-        private Block bed;
+    public class Team {
+        public Team(List<Player> members, Location bed, Location shop, Location upgrades, Location summoner) {
+            log("members = " + String.join(", ", members.stream().map(Player::getName).collect(Collectors.joining())));
+            log("bed = " + bed);
+            log("shop = " + shop);
+            log("upgrades = " + upgrades);
+            log("summoner = " + summoner);
+        }
     }
 
     private final List<Team> teams;
@@ -140,9 +141,10 @@ public class Bedwars extends Minigame {
         this.lobbyWorld = new GameWorld("bedwars_lobby");
         this.gameWorld = new GameWorld("bedwars_map_treasure_island");
 
-        Set<Player> players = new HashSet<>(getPlayers());
+        List<Player> players = new ArrayList<>(getPlayers());
+        int p = 0;
 
-        this.islands = new ArrayList<>();
+        this.teams = new ArrayList<>();
         for (TeamColor teamColor : TeamColor.values()) {
             Location bed = gameWorld.getConfigLocation("team." + teamColor.toString().toLowerCase() + ".bed");
             if (bed == null) continue;
@@ -155,6 +157,23 @@ public class Bedwars extends Minigame {
 
             Location summoner = gameWorld.getConfigLocation("team." + teamColor.toString().toLowerCase() + ".bed");
             if (summoner == null) continue;
+
+            List<Player> members = new ArrayList<>();
+
+            for (int i = 0; i < gameType.getTeamSize(); i++) {
+                members.add(players.get(p++));
+                if (p == players.size() - 1) break;
+            }
+
+            teams.add(new Team(
+                    members,
+                    bed,
+                    shop,
+                    upgrades,
+                    summoner
+            ));
+
+            if (p == players.size() - 1) break;
         }
 
     }

@@ -89,11 +89,11 @@ public class TNTRun extends Minigame{
             case RUNNING: {
                 gameState = gameState.RUNNING;
                 broadcastSound(Sound.ENDERDRAGON_GROWL, 1, 2);
-            }
+            } break;
             case FINISHED: {
                 gameState = gameState.FINISHED;
                 broadcastSound(Sound.GHAST_MOAN, 1, 2);
-            }
+            } break;
         }
     }
 
